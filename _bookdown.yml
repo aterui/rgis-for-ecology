@@ -1,0 +1,7 @@
+delete_merged_file: true
+language:
+  ui:
+    chapter_name: "Chapter "
+rmd_files: ["index.Rmd",
+            "sf-01-point.Rmd"]
+output_dir: "docs"

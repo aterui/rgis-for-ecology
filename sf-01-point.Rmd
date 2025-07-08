@@ -1,0 +1,29 @@
+# (PART) GIS Basic {.unnumbered}
+
+# Coordinate Reference System (CRS)
+
+## Getting started with NC Fish Data
+
+## Coordinate Reference Systems: Geodetic vs. Projected
+
+Coordinate Reference Systems (CRS) are essential for accurately representing spatial data on the Earth's surface. Broadly, CRS fall into two categories: **geodetic (geographic)** and **projected**. A *geodetic CRS* models the Earth as a 3D ellipsoid and represents locations using angular coordinates — latitude and longitude. These systems are ideal for global positioning and mapping where preserving true geographic coordinates is important. However, because they represent curved surfaces on a spherical model, they are not suitable for accurate distance or area calculations on flat maps. Common examples of **geodetic CRS** include WGS 84 (`EPSG:4326`), which is used by GPS and most global datasets, and NAD83 (`EPSG:4269`), which is widely used in North America.
+
+In contrast, a *projected CRS* transforms geographic coordinates onto a 2D surface using mathematical projections. This allows for accurate measurements of distance, area, or direction in localized regions. Projected systems distort some properties (e.g., shape, area, or scale) but can be tailored for specific mapping needs. Examples of **projected CRS** include UTM zones (e.g., UTM Zone 17N, `EPSG:26917`) and State Plane systems like **North Carolina State Plane (EPSG:32119)**, which are optimized for regional accuracy and are commonly used in government or environmental datasets.
+
++---------------+----------------------------------------------------------------------------------------+------------------------------------------------+-------------------------------------------------------+
+| CRS Type      | Unit                                                                                   | Advantages                                     | Disadvantages                                         |
++===============+========================================================================================+================================================+=======================================================+
+| **Geodetic**  | **Latitude and longitude** on an ellipsoidal model of Earth                            | Global coverage (e.g., GPS)                    | **NOT** for distance, area, or direction calculations |
+|               |                                                                                        |                                                |                                                       |
+|               |                                                                                        | Standard for data exchange and web maps        | Curved surface not ideal for flat map operations      |
+|               |                                                                                        |                                                |                                                       |
+|               |                                                                                        | Easy to interpret (lat/lon)                    |                                                       |
++---------------+----------------------------------------------------------------------------------------+------------------------------------------------+-------------------------------------------------------+
+| **Projected** | **X/Y Cartesian coordinates** on a flat surface derived from a projection of the Earth | Enables accurate measurements (distance, area) | Distorts some geographic properties                   |
+|               |                                                                                        |                                                |                                                       |
+|               |                                                                                        | Optimized for regional analysis                | Limited to specific regions                           |
+|               |                                                                                        |                                                |                                                       |
+|               |                                                                                        | Supports specialized map projections           | Must choose the right projection for your purpose     |
++---------------+----------------------------------------------------------------------------------------+------------------------------------------------+-------------------------------------------------------+
+
+: Comparison of geodetic and projected CRS.

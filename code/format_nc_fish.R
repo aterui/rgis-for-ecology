@@ -1,6 +1,6 @@
 
+rm(list = ls())
 source("code/set_library.R")
-
 
 # read data ---------------------------------------------------------------
 
@@ -19,10 +19,12 @@ df_fish0 <- list.files("data/src",
                 .fns = str_to_lower)) %>% 
   mutate(scientific_name = str_to_sentence(scientific_name) %>% 
            str_replace("\\ssp\\.\\s[cC]\\.?f\\.?\\s", " ") %>% 
-           str_replace("nigrum/olmstedi", "nigrum"))
+           str_replace("nigrum/olmstedi", "nigrum")) %>% 
+  filter(stationid != "qf120") # qf57 & qf120 has the same coordinate; retain qf120
+  
 
 df_fish <- df_fish0 %>% 
-  distinct(stationid, 
+  distinct(stationid,
            date,
            longitude,
            latitude) %>% 

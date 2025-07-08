@@ -1,10 +1,78 @@
 # (PART) GIS Basic {.unnumbered}
 
-# Coordinate Reference System (CRS)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
 
-## Getting started with NC Fish Data
 
-## Coordinate Reference Systems: Geodetic vs. Projected
+# Coordinate Reference System
+
+In this chapter, we will work with the `tidyverse` and `sf` packages.
+Before starting any exercises, make sure to run the following code.
+
+```{r}
+
+library(tidyverse)
+library(sf)
+
+```
+
+
+## Getting Started
+
+What is Coordinate Reference System (CRS)?
+CRS defines how spatial data are projected onto the Earth's surface—essentially, how locations on the curved Earth are represented on a flat map.
+Understanding CRS is essential for working with geospatial data accurately.
+
+To get a sense of how CRS works in practice, let's explore a dataset on fish distributions from North Carolina.
+This regional dataset contains georeferenced sampling sites using [longitude and latitude](https://www.latlong.net/) coordinates.
+
+We'll start by reading the dataset from the data sub-directory in your R project:
+
+```{r}
+df_fish <- read_csv("data/data_fish_nc.csv")
+```
+
+This dataset contains the following columns:
+
+```{r cl-table, echo = FALSE}
+
+df_cl_table <- tibble(Column = colnames(df_fish),
+                      Description = c("Site name",
+                                      "Sampling year",
+                                      "Sampling date",
+                                      "Longitude",
+                                      "Latitude",
+                                      "Scientific name",
+                                      "Common name",
+                                      "Number of fish collected")
+                      )
+
+knitr::kable(df_cl_table)
+```
+
+Let's take a quick view of the dataframe:
+
+```{r}
+print(df_fish)
+```
+
+Since this dataframe contains longitude and latitude columns, we can make this data as **georeferenced**.
+To do so, we'll need to use functions from `sf` package, which makes the mere numbers of coordinates linked to CRS of your choice.
+
+```{r}
+sf_fish <- df_fish %>% 
+  st_as_sf(coords = c("lon", "lat"),
+           crs = 4326)
+
+print(sf_fish)
+```
+
+
+
+## Geodetic vs. Projected
 
 Coordinate Reference Systems (CRS) are essential for accurately representing spatial data on the Earth's surface. Broadly, CRS fall into two categories: **geodetic (geographic)** and **projected**. A *geodetic CRS* models the Earth as a 3D ellipsoid and represents locations using angular coordinates — latitude and longitude. These systems are ideal for global positioning and mapping where preserving true geographic coordinates is important. However, because they represent curved surfaces on a spherical model, they are not suitable for accurate distance or area calculations on flat maps. Common examples of **geodetic CRS** include WGS 84 (`EPSG:4326`), which is used by GPS and most global datasets, and NAD83 (`EPSG:4269`), which is widely used in North America.
 

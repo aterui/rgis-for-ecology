@@ -2,6 +2,6 @@ about
 usage
 render-book
 preview-book
-coordinate-reference-system-crs
-getting-started-with-nc-fish-data
-coordinate-reference-systems-geodetic-vs.-projected
+coordinate-reference-system
+getting-started
+geodetic-vs.-projected

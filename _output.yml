@@ -1,0 +1,5 @@
+bookdown::bs4_book:
+  theme:
+    primary: "#2a9d8f"
+    bootswatch: flatly
+  

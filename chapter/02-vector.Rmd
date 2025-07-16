@@ -1,0 +1,174 @@
+# Vector Data (`sf` basics)
+
+In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code.
+
+```{r}
+library(tidyverse)
+library(sf)
+library(mapview)
+
+```
+
+Learning objectives:
+
+1.  Understand the types and structures of vector data (points, lines, and polygons)
+
+2.  Being able to produce a map using vector data
+
+3.  Being able to manipulate vector data
+
+## Vector Data in GIS
+
+In Geographic Information Systems (GIS), **vector data** is one of the primary ways to represent geographic features on a map. Vector data uses **geometric shapes** -- specifically **points, lines, and polygons** -- to model real-world objects.
+
+Each vector feature can also carry **attribute data**, which are stored in a table linked to the spatial features. For example, a polygon representing a park might include attributes such as its name, size, or type of vegetation.
+
+Vector data is particularly useful for representing clearly defined boundaries and discrete features, and it allows for detailed spatial analysis and accurate map production.
+
+## Point
+
+**Points** represent discrete locations that have no area or length, such as the location of a weather station, a tree, or a city. Each point has a pair of coordinates (latitude and longitude or x and y) that indicate its position.
+
+The sample data used in Chapter \@ref(coordinate-systems) is an example of a point vector layer. Let's take a closer look at this dataset (saved as `data/sf_finsync_nc.rds` in the shared repository).
+
+```{r}
+sf_site <- readRDS("data/sf_finsync_nc.rds")
+print(sf_site)
+```
+
+If you examine the geometry column, you'll see that it contains pairs of latitude and longitude values with the notation `<POINT [°]>`, which specify the location of each site. Using this geographic information, we visualized the survey sites on a map in Chapter \@ref(getting-started). We can map this data with `mapview::mapview()` function:
+
+```{r}
+mapview(sf_site,
+        col.regions = "black", # point's fill color
+        legend = FALSE) # disable legend
+```
+
+## Line
+
+**Lines** (also called **polylines**) represent linear features such as roads, rivers, or trails. A line consists of a sequence of connected points and may include curves or bends. Lines have length, but no area.
+
+Stream lines are an example of line geometries.\
+We will use a sample dataset stored in `data/sf_stream.rds`, which illustrate stream networks within Guilford county, NC. You can load and inspect it in R as follows:
+
+```{r}
+sf_str <- readRDS("data/sf_stream.rds")
+print(sf_str)
+```
+
+In contrast to the point vector layer introduced earlier, this dataset's geometry column contains the notation `LINESTRING`, indicating that the features represent linear geometries—specifically, stream segments. Let’s visualize this data to better understand its structure:
+
+```{r}
+mapview(sf_str,
+        color = "steelblue", # line's color
+        legend = FALSE) # disable legend
+```
+
+## Polygon
+
+**Polygons** represent areas such as lakes, parks, or country boundaries. A polygon is formed by a closed sequence of lines that define its perimeter, allowing it to enclose a space and have both area and shape. As an example, we’ll use county-level polygon data from North Carolina:
+
+```{r}
+sf_nc_county <- readRDS("data/sf_nc_county.rds")
+print(sf_nc_county)
+```
+
+In the geometry column, you’ll notice the notation MULTIPOLYGON, which indicates that each feature consists of one or more connected polygons. These are classified as polygon vectors in GIS and are commonly used to represent areas with defined boundaries. Let’s visualize these polygons as well:
+
+```{r}
+mapview(sf_nc_county,
+        col.regions = "grey", # polygon's fill color
+        legend = FALSE) # disable legend
+```
+
+## Mapping in ggplot
+
+To visualize the three types of vector data—points, lines, and polygons—together, we can use the `ggplot2` package with its `geom_sf()` function, which natively supports spatial features.
+
+We’ll start by plotting just the **polygon layer** to show the county boundaries:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_county)
+```
+
+Next, we add the line layer, which represents stream networks, on top of the county polygons:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_county) +
+  geom_sf(data = sf_str)
+```
+
+Finally, we add the point layer to the map, which marks the survey sites. This completes the map by showing all three vector types together:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_county) +
+  geom_sf(data = sf_str) +
+  geom_sf(data = sf_site)
+```
+
+## Spatial Data Manipulation
+
+While the map we created earlier provides a good overview, it may appear odd because the stream network is only available for Guilford County, yet the other layers (such as survey sites and county boundaries) span the entire state. To better align the spatial representation, we might want to focus on Guilford County across all layers.
+
+One of the major benefits of using R GIS analysis is that spatial features can be manipulated just like regular data frames. This kind of spatial subsetting is also possible in platforms like ArcGIS or QGIS, but often involves tedious click-and-save workflows, which I personally try to avoid.
+
+To narrow down the survey sites to only those that fall within Guilford County, we can use the `st_join()` function from the `sf` package. This function performs a spatial join, associating attributes from one layer (e.g., counties) to another (e.g., point locations) based on their geographic overlap.
+
+Here, we overlay `sf_site` (survey sites) with `sf_nc_county` (county polygons) to attach county information to each point:
+
+```{r}
+sf_site_join <- st_join(x = sf_site, # base layer
+                        y = sf_nc_county) # overlaying layer
+```
+
+In the original `sf_site` data, there was no column identifying the county for each site:
+
+```{r}
+print(sf_site)
+```
+
+After running `st_join()`, the resulting object `sf_site_join` now includes additional attributes from the county layer—most notably, a county column:
+
+```{r}
+print(sf_site_join)
+```
+
+This column isn’t randomly assigned; it reflects the actual geographic relationship: each survey site inherits the attributes of the county polygon it falls within, based on spatial coordinates.
+
+Now that each survey site has a county identifier, we can easily subset the points located within Guilford County using familiar `tidyverse` syntax:
+
+```{r}
+sf_site_guilford <- sf_site_join %>% 
+  filter(county == "guilford")
+```
+
+We can also extract just the Guilford County polygon from the full county dataset:
+
+```{r}
+sf_nc_guilford <- sf_nc_county %>% 
+  filter(county == "guilford")
+```
+
+With these filtered layers, we can re-create the map -- this time focusing exclusively on Guilford County and its associated stream network and survey sites:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_guilford) +
+  geom_sf(data = sf_str) +
+  geom_sf(data = sf_site_guilford)
+```
+
+If we wish, we can customize the colors of each layer and apply a clean base theme to enhance the appearance:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_guilford) +
+  geom_sf(data = sf_str,
+          color = "steelblue") +
+  geom_sf(data = sf_site_guilford,
+          color = "salmon") +
+  theme_bw()
+```

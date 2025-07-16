@@ -1,0 +1,11 @@
+# Vector-Raster Interactions
+
+In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code.
+
+```{r}
+library(tidyverse)
+library(sf)
+library(mapview)
+
+```
+

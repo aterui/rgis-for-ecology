@@ -1,3 +1,6 @@
 pacman::p_load(tidyverse,
                sf,
-               terra)
+               terra,
+               tidyterra,
+               foreach,
+               mapview)

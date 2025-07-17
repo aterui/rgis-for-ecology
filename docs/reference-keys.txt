@@ -15,4 +15,11 @@ polygon
 mapping-in-ggplot
 spatial-data-manipulation
 raster-data-terra-basics
+raster-data-in-gis
 vector-raster-interactions
+interations-between-vector-and-raster-data
+point-wise-extraction
+zonal-statistics
+traditional-approach
+alternative-approach
+buffer-analysis

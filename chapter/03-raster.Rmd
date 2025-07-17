@@ -3,8 +3,12 @@
 In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code.
 
 ```{r}
-library(tidyverse)
-library(sf)
-library(mapview)
+if (!require(pacman)) install.packages("packman")
 
+pacman::p_load(tidyverse,
+               sf,
+               mapview)
 ```
+
+## Raster Data in GIS
+

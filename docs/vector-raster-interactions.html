@@ -6,14 +6,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 5 Vector-Raster Interactions | Geospatial Analysis in Ecology</title>
 <meta name="author" content="Akira Terui">
-<meta name="description" content="In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code. library(tidyverse) library(sf) library(mapview)">
+<meta name="description" content='In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code. if (!require(pacman)) install.packages("packman")...'>
 <meta name="generator" content="bookdown 0.40 with bs4_book()">
 <meta property="og:title" content="Chapter 5 Vector-Raster Interactions | Geospatial Analysis in Ecology">
 <meta property="og:type" content="book">
-<meta property="og:description" content="In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code. library(tidyverse) library(sf) library(mapview)">
+<meta property="og:description" content='In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code. if (!require(pacman)) install.packages("packman")...'>
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 5 Vector-Raster Interactions | Geospatial Analysis in Ecology">
-<meta name="twitter:description" content="In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code. library(tidyverse) library(sf) library(mapview)">
+<meta name="twitter:description" content='In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code. if (!require(pacman)) install.packages("packman")...'>
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.8.0/transition.js"></script><script src="libs/bs3compat-0.8.0/tabs.js"></script><script src="libs/bs3compat-0.8.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -66,13 +66,224 @@
 <h1>
 <span class="header-section-number">5</span> Vector-Raster Interactions<a class="anchor" aria-label="anchor" href="#vector-raster-interactions"><i class="fas fa-link"></i></a>
 </h1>
-<p>In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code.</p>
+<p>In this chapter, we will work with the following packages.
+Before starting any exercises, make sure to run the following code.</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-spatial/mapview">mapview</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/trinker/pacman">pacman</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"packman"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">pacman</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pacman/man/p_load.html">p_load</a></span><span class="op">(</span><span class="va">tidyverse</span>,</span>
+<span>               <span class="va">sf</span>,</span>
+<span>               <span class="va">terra</span>,</span>
+<span>               <span class="va">tidyterra</span>,</span>
+<span>               <span class="va">exactextractr</span><span class="op">)</span></span></code></pre></div>
+<div id="interations-between-vector-and-raster-data" class="section level2" number="5.1">
+<h2>
+<span class="header-section-number">5.1</span> Interations between Vector and Raster Data<a class="anchor" aria-label="anchor" href="#interations-between-vector-and-raster-data"><i class="fas fa-link"></i></a>
+</h2>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## finsync survey site</span></span>
+<span><span class="va">sf_site</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/sf_finsync_nc.rds"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## county polygons</span></span>
+<span><span class="va">sf_nc_county</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/sf_nc_county.rds"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## precipitation raster</span></span>
+<span><span class="va">spr_prec_nc</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_prec_nc.tif"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div id="point-wise-extraction" class="section level2" number="5.2">
+<h2>
+<span class="header-section-number">5.2</span> Point-wise Extraction<a class="anchor" aria-label="anchor" href="#point-wise-extraction"><i class="fas fa-link"></i></a>
+</h2>
+<p>Let’s perform point-wise extraction of precipitation values at survey site locations.
+To explore the spatial patterns and get a sense of the data, we will first visualize the raster precipitation data using <code><a href="https://dieghernan.github.io/tidyterra/reference/geom_spatraster.html">tidyterra::geom_spatraster()</a></code> and overlay the survey sites using <code><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">ggplot2::geom_sf()</a></code>.</p>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_prec_nc</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_site</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_fill_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="co"># change color palette for raster</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-33-1.png" width="672"></div>
+<p>To extract raster values at the survey sites, we will use the <code><a href="https://rspatial.github.io/terra/reference/extract.html">terra::extract()</a></code> function.
+This function retrieves the values of one or more raster layers at the locations specified by spatial vector data, such as points or polygons.
+In our case, it will return the precipitation value at each survey site location.</p>
+<p>Since the output of <code><a href="https://rspatial.github.io/terra/reference/extract.html">terra::extract()</a></code> with <code>bind = TRUE</code> is a class of <code>SpatVector</code> that includes geometry but is not yet an <code>sf</code> object, we convert it back to an sf object using <code><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html">sf::st_as_sf()</a></code> (using <code>%&gt;%</code>, these steps can be done in one step).</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># # The following code works exactly as:</span></span>
+<span><span class="co"># spr_site_prec &lt;- extract(x = spr_prec_nc,</span></span>
+<span><span class="co">#                          y = sf_site,</span></span>
+<span><span class="co">#                          bind = TRUE)</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># sf_site_prec &lt;- st_as_sf(spr_site_prec)</span></span>
+<span></span>
+<span><span class="op">(</span><span class="va">sf_site_prec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/extract.html">extract</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec_nc</span>,</span>
+<span>                         y <span class="op">=</span> <span class="va">sf_site</span>,</span>
+<span>                         bind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>   <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html">st_as_sf</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## Simple feature collection with 122 features and 2 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -84.02452 ymin: 34.53497 xmax: -76.74611 ymax: 36.54083
+## Geodetic CRS:  WGS 84
+## First 10 features:
+##                 site_id precipitation                   geometry
+## 1  finsync_nrs_nc-10013        1349.4 POINT (-81.51025 36.11188)
+## 2  finsync_nrs_nc-10014        1121.5 POINT (-80.35989 35.87616)
+## 3  finsync_nrs_nc-10020        1297.3 POINT (-81.74472 35.64379)
+## 4  finsync_nrs_nc-10023        1162.0  POINT (-82.77898 35.6822)
+## 5  finsync_nrs_nc-10024        1302.0 POINT (-77.75384 35.38553)
+## 6  finsync_nrs_nc-10027        1741.5 POINT (-83.69678 35.02467)
+## 7  finsync_nrs_nc-10029        1224.3 POINT (-80.65668 35.16119)
+## 8  finsync_nrs_nc-10034        1813.2 POINT (-82.04497 36.09917)
+## 9  finsync_nrs_nc-10041        1141.3 POINT (-80.46558 35.04365)
+## 10 finsync_nrs_nc-10049        1444.7 POINT (-77.96322 34.58249)</code></pre>
+<p>This allows for seamless spatial operations and visualization downstream.
+Since our point data now include precipitation values, we can represent the survey sites with colors that reflect the precipitation gradient.</p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,       <span class="co"># Plot county boundaries as a grey background</span></span>
+<span>          fill <span class="op">=</span> <span class="st">"grey"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_site_prec</span>,       <span class="co"># Plot survey points colored by precipitation</span></span>
+<span>          <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">precipitation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_color_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>          <span class="co"># Apply a perceptually uniform color scale</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span>                        <span class="co"># Use a clean black-and-white theme</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-35-1.png" width="672"></div>
+</div>
+<div id="zonal-statistics" class="section level2" number="5.3">
+<h2>
+<span class="header-section-number">5.3</span> Zonal Statistics<a class="anchor" aria-label="anchor" href="#zonal-statistics"><i class="fas fa-link"></i></a>
+</h2>
+<p>Zonal statistics in GIS refers to the process of summarizing raster values within the boundaries of defined zones, typically represented by polygons.
+For example, you might calculate the average precipitation within each watershed or administrative boundary.
+This is commonly done by overlaying polygon features onto a raster layer and computing summary statistics (e.g., mean, sum, min, max) for all raster cells that fall within each polygon.</p>
+<div id="traditional-approach" class="section level3" number="5.3.1">
+<h3>
+<span class="header-section-number">5.3.1</span> Traditional approach<a class="anchor" aria-label="anchor" href="#traditional-approach"><i class="fas fa-link"></i></a>
+</h3>
+<p>The <code>exactextractr</code> package provides a suite of efficient and precise tools for performing zonal statistics, particularly when working with raster and polygon data.
+In the following example, we will use <code>exact_extract()</code> to calculate the mean precipitation within each county polygon.</p>
+<p>However, before performing zonal statistics, it is critical to ensure that both the raster and vector layers use a projected CRS – not a geographic one (like WGS 84 in degrees).
+This is because zonal statistics summarize values over areas, and accurate area-based calculations require linear units (e.g., meters), which are only meaningful in a projected CRS.</p>
+<p>In this example, we first reproject the county polygon layer <code>sf_nc_county</code> into <code>WGS 84 / UTM zone 17N (EPSG:32617)</code>, a projected CRS appropriate for central and eastern North Carolina.
+Then, we use <code><a href="https://rspatial.github.io/terra/reference/project.html">terra::project()</a></code> to reproject the raster layer <code>spr_prec_nc</code> to match the polygon layer’s CRS.
+The <code>method = "bilinear"</code> option is used for resampling continuous raster data (such as precipitation)<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;&lt;code&gt;method = "nearest"&lt;/code&gt; should be used for categorical raster data.
+See &lt;code&gt;?terra::project()&lt;/code&gt; .&lt;/p&gt;'><sup>2</sup></a>, providing smoother interpolation.</p>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sf_nc_county_proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_transform.html">st_transform</a></span><span class="op">(</span><span class="va">sf_nc_county</span>,</span>
+<span>                                  crs <span class="op">=</span> <span class="fl">32617</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">spr_prec_nc_proj</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/project.html">project</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec_nc</span>, </span>
+<span>                                   y <span class="op">=</span> <span class="fu">crs</span><span class="op">(</span><span class="va">sf_nc_county_proj</span><span class="op">)</span>,</span>
+<span>                                   method <span class="op">=</span> <span class="st">"bilinear"</span><span class="op">)</span> </span></code></pre></div>
+<p>With both layers now in a common projected CRS, we can proceed with zonal statistics, ensuring that area-weighted calculations are geometrically accurate.</p>
+<p>In the code below, <code>exact_extract()</code> is used to calculate the mean precipitation within each county polygon (<code>sf_nc_county_proj</code>) from the reprojected raster <code>spr_prec_nc_proj</code>.
+The argument <code>fun = "mean"</code> specifies that we want to compute the simple mean of all raster cell values that overlap each polygon.
+The <code>append_cols = TRUE</code> option ensures that all original attributes from the <code>sf_nc_county_proj</code> object are retained in the output, which makes it easier to link the results back to the spatial features.</p>
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># NOTE: `progress = FALSE` turns off the progress bar for cleaner output</span></span>
+<span><span class="op">(</span><span class="va">df_prec_county</span> <span class="op">&lt;-</span> <span class="fu">exact_extract</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec_nc_proj</span>,</span>
+<span>                                 y <span class="op">=</span> <span class="va">sf_nc_county_proj</span>,</span>
+<span>                                 fun <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>                                 append_cols <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                                 progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>   <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="co"># convert to tibble</span></span>
+<span>   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>precipitation <span class="op">=</span> <span class="va">mean</span><span class="op">)</span><span class="op">)</span> <span class="co"># rename the output column)</span></span></code></pre></div>
+<pre><code>## # A tibble: 100 × 2
+##    county      precipitation
+##    &lt;chr&gt;               &lt;dbl&gt;
+##  1 ashe                1366.
+##  2 alleghany           1369.
+##  3 surry               1217.
+##  4 currituck           1281.
+##  5 northampton         1179.
+##  6 hertford            1239.
+##  7 camden              1299.
+##  8 gates               1275.
+##  9 warren              1140.
+## 10 stokes              1218.
+## # ℹ 90 more rows</code></pre>
+<p>Although the output from <code>exact_extract()</code> is a regular data frame (not an <code>sf</code> object), we can easily merge the computed statistics back into the original spatial data using <code><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join()</a></code><a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;The &lt;code&gt;left_join()&lt;/code&gt; function performs a key-based merge, adding the precipitation values from &lt;code&gt;df_prec_county&lt;/code&gt; to the corresponding polygons in &lt;code&gt;sf_nc_county&lt;/code&gt;.&lt;/p&gt;"><sup>3</sup></a>.
+This allows us to retain the spatial geometry of the county polygons while adding the precipitation values as new attributes.</p>
+<p>In the example below, we assume that both the original <code>sf</code> object (<code>sf_nc_county</code>) and the extracted results (<code>df_prec_county</code>) share a common identifier column named <code>county</code>.</p>
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">sf_nc_county_prec</span> <span class="op">&lt;-</span> <span class="va">sf_nc_county</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">df_prec_county</span>,</span>
+<span>             by <span class="op">=</span> <span class="st">"county"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## Simple feature collection with 100 features and 2 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -84.32377 ymin: 33.88212 xmax: -75.45662 ymax: 36.58973
+## Geodetic CRS:  WGS 84
+## First 10 features:
+##         county precipitation                       geometry
+## 1         ashe      1365.949 MULTIPOLYGON (((-81.47258 3...
+## 2    alleghany      1368.901 MULTIPOLYGON (((-81.23971 3...
+## 3        surry      1216.966 MULTIPOLYGON (((-80.45614 3...
+## 4    currituck      1281.308 MULTIPOLYGON (((-76.00863 3...
+## 5  northampton      1178.707 MULTIPOLYGON (((-77.21736 3...
+## 6     hertford      1239.493 MULTIPOLYGON (((-76.74474 3...
+## 7       camden      1299.447 MULTIPOLYGON (((-76.00863 3...
+## 8        gates      1275.414 MULTIPOLYGON (((-76.56218 3...
+## 9       warren      1139.996 MULTIPOLYGON (((-78.30849 3...
+## 10      stokes      1217.916 MULTIPOLYGON (((-80.02545 3...</code></pre>
+<p>The following plot uses <code>ggplot2</code> to visualize the mean precipitation values calculated for each county.
+The <code><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf()</a></code> layer draws the county boundaries from the <code>sf_nc_county_prec</code> object, and the <code>aes(color = precipitation)</code> argument maps the precipitation values to a color gradient.</p>
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county_prec</span>,</span>
+<span>          <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">precipitation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_fill_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-39-1.png" width="672"></div>
+</div>
+<div id="alternative-approach" class="section level3" number="5.3.2">
+<h3>
+<span class="header-section-number">5.3.2</span> Alternative approach<a class="anchor" aria-label="anchor" href="#alternative-approach"><i class="fas fa-link"></i></a>
+</h3>
+<p>The above example involved multiple steps to reproject both the raster and polygon layers into a common projected CRS, which is necessary for accurate area-based calculations.</p>
+<p>However, the <code>exact_extract()</code> function provides a convenient alternative that avoids the need for explicit reprojection.
+By specifying <code>fun = "weighted_mean"</code> and <code>weights = "area"</code>, we instruct the function to calculate the mean precipitation for each polygon by weighting each raster cell’s contribution according to <strong>the fraction of its area that overlaps the polygon</strong>.</p>
+<p>This internal weighting allows <code>exact_extract()</code> to produce geometrically accurate results even when the layers remain in a geographic CRS (e.g., WGS 84), which is especially useful when working with global datasets or when reprojection is impractical.</p>
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">df_prec_county_alt</span> <span class="op">&lt;-</span> <span class="fu">exact_extract</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec_nc</span>,</span>
+<span>                                     y <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
+<span>                                     fun <span class="op">=</span> <span class="st">"weighted_mean"</span>,</span>
+<span>                                     weights <span class="op">=</span> <span class="st">"area"</span>,</span>
+<span>                                     append_cols <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                                     progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>   <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="co"># convert to tibble</span></span>
+<span>   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>precipitation <span class="op">=</span> <span class="va">weighted_mean</span><span class="op">)</span><span class="op">)</span> <span class="co"># rename the output column</span></span></code></pre></div>
+<pre><code>## # A tibble: 100 × 2
+##    county      precipitation
+##    &lt;chr&gt;               &lt;dbl&gt;
+##  1 ashe                1366.
+##  2 alleghany           1369.
+##  3 surry               1217.
+##  4 currituck           1281.
+##  5 northampton         1179.
+##  6 hertford            1239.
+##  7 camden              1299.
+##  8 gates               1275.
+##  9 warren              1140.
+## 10 stokes              1218.
+## # ℹ 90 more rows</code></pre>
+<p>The numbers produced by the area-weighted approach without reprojection may differ slightly from those obtained using fully projected layers.</p>
+<p>In most cases, this difference is negligible, making the approximation both practical and efficient; especially when working across large spatial extents that span multiple UTM zones or even continents, where choosing a single appropriate projection becomes difficult.
+In such cases, the ability of <code>exact_extract()</code> to apply area-based weights directly in geographic CRS is a major advantage, as it simplifies preprocessing and avoids potential distortions from inappropriate projections.</p>
+<p>That said, if your analysis requires high spatial accuracy, for example, when modeling fine-scale ecological processes or when exact area measurements are critical, it is still recommended to reproject both raster and vector data to an appropriate projected CRS.
+Ultimately, the decision depends on the scale, purpose, and precision required by your specific application.</p>
+</div>
+</div>
+<div id="buffer-analysis" class="section level2" number="5.4">
+<h2>
+<span class="header-section-number">5.4</span> Buffer Analysis<a class="anchor" aria-label="anchor" href="#buffer-analysis"><i class="fas fa-link"></i></a>
+</h2>
 
 </div>
+</div>
+
+
+
+
 
 
 
@@ -84,7 +295,18 @@
 <div class="empty"></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
-      <ul class="nav navbar-nav"><li><a class="nav-link" href="#vector-raster-interactions"><span class="header-section-number">5</span> Vector-Raster Interactions</a></li></ul>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#vector-raster-interactions"><span class="header-section-number">5</span> Vector-Raster Interactions</a></li>
+<li><a class="nav-link" href="#interations-between-vector-and-raster-data"><span class="header-section-number">5.1</span> Interations between Vector and Raster Data</a></li>
+<li><a class="nav-link" href="#point-wise-extraction"><span class="header-section-number">5.2</span> Point-wise Extraction</a></li>
+<li>
+<a class="nav-link" href="#zonal-statistics"><span class="header-section-number">5.3</span> Zonal Statistics</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#traditional-approach"><span class="header-section-number">5.3.1</span> Traditional approach</a></li>
+<li><a class="nav-link" href="#alternative-approach"><span class="header-section-number">5.3.2</span> Alternative approach</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#buffer-analysis"><span class="header-section-number">5.4</span> Buffer Analysis</a></li>
+</ul>
 
       <div class="book-extra">
         <ul class="list-unstyled">
@@ -100,7 +322,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Geospatial Analysis in Ecology</strong>" was written by Akira Terui. It was last built on 2025-07-16.</p>
+    <p>"<strong>Geospatial Analysis in Ecology</strong>" was written by Akira Terui. It was last built on 2025-07-17.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

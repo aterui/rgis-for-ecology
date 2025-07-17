@@ -3,10 +3,11 @@
 In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code.
 
 ```{r}
-library(tidyverse)
-library(sf)
-library(mapview)
+if (!require(pacman)) install.packages("packman")
 
+pacman::p_load(tidyverse,
+               sf,
+               mapview)
 ```
 
 Learning objectives:
@@ -19,7 +20,7 @@ Learning objectives:
 
 ## Vector Data in GIS
 
-In Geographic Information Systems (GIS), **vector data** is one of the primary ways to represent geographic features on a map. Vector data uses **geometric shapes** -- specifically **points, lines, and polygons** -- to model real-world objects.
+In GIS, **vector data** is one of the primary ways to represent geographic features on a map. Vector data uses **geometric shapes** -- specifically **points, lines, and polygons** -- to model real-world objects.
 
 Each vector feature can also carry **attribute data**, which are stored in a table linked to the spatial features. For example, a polygon representing a park might include attributes such as its name, size, or type of vegetation.
 

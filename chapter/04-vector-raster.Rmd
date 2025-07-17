@@ -1,11 +1,187 @@
+---
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
 # Vector-Raster Interactions
 
-In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code.
+In this chapter, we will work with the following packages.
+Before starting any exercises, make sure to run the following code.
 
 ```{r}
-library(tidyverse)
-library(sf)
-library(mapview)
+if (!require(pacman)) install.packages("packman")
+
+pacman::p_load(tidyverse,
+               sf,
+               terra,
+               tidyterra,
+               exactextractr)
+```
+
+## Interations between Vector and Raster Data
+
+```{r}
+
+## finsync survey site
+sf_site <- readRDS("data/sf_finsync_nc.rds")
+
+## county polygons
+sf_nc_county <- readRDS("data/sf_nc_county.rds")
+
+## precipitation raster
+spr_prec_nc <- rast("data/spr_prec_nc.tif")
 
 ```
 
+## Point-wise Extraction
+
+Let's perform point-wise extraction of precipitation values at survey site locations.
+To explore the spatial patterns and get a sense of the data, we will first visualize the raster precipitation data using `tidyterra::geom_spatraster()` and overlay the survey sites using `ggplot2::geom_sf()`.
+
+```{r}
+
+ggplot() +
+  geom_spatraster(data = spr_prec_nc) +
+  geom_sf(data = sf_site) +
+  scale_fill_viridis_c() + # change color palette for raster
+  theme_bw()
+
+```
+
+To extract raster values at the survey sites, we will use the `terra::extract()` function.
+This function retrieves the values of one or more raster layers at the locations specified by spatial vector data, such as points or polygons.
+In our case, it will return the precipitation value at each survey site location.
+
+Since the output of `terra::extract()` with `bind = TRUE` is a class of `SpatVector` that includes geometry but is not yet an `sf` object, we convert it back to an sf object using `sf::st_as_sf()` (using `%>%`, these steps can be done in one step).
+
+```{r}
+
+# # The following code works exactly as:
+# spr_site_prec <- extract(x = spr_prec_nc,
+#                          y = sf_site,
+#                          bind = TRUE)
+# 
+# sf_site_prec <- st_as_sf(spr_site_prec)
+
+(sf_site_prec <- extract(x = spr_prec_nc,
+                         y = sf_site,
+                         bind = TRUE) %>% 
+   st_as_sf())
+
+```
+
+This allows for seamless spatial operations and visualization downstream.
+Since our point data now include precipitation values, we can represent the survey sites with colors that reflect the precipitation gradient.
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_county,       # Plot county boundaries as a grey background
+          fill = "grey") + 
+  geom_sf(data = sf_site_prec,       # Plot survey points colored by precipitation
+          aes(color = precipitation)) +
+  scale_color_viridis_c() +          # Apply a perceptually uniform color scale
+  theme_bw()                        # Use a clean black-and-white theme
+```
+
+## Zonal Statistics
+
+Zonal statistics in GIS refers to the process of summarizing raster values within the boundaries of defined zones, typically represented by polygons.
+For example, you might calculate the average precipitation within each watershed or administrative boundary.
+This is commonly done by overlaying polygon features onto a raster layer and computing summary statistics (e.g., mean, sum, min, max) for all raster cells that fall within each polygon.
+
+### Traditional approach
+
+The `exactextractr` package provides a suite of efficient and precise tools for performing zonal statistics, particularly when working with raster and polygon data.
+In the following example, we will use `exact_extract()` to calculate the mean precipitation within each county polygon.
+
+However, before performing zonal statistics, it is critical to ensure that both the raster and vector layers use a projected CRS -- not a geographic one (like WGS 84 in degrees).
+This is because zonal statistics summarize values over areas, and accurate area-based calculations require linear units (e.g., meters), which are only meaningful in a projected CRS.
+
+In this example, we first reproject the county polygon layer `sf_nc_county` into `WGS 84 / UTM zone 17N (EPSG:32617)`, a projected CRS appropriate for central and eastern North Carolina.
+Then, we use `terra::project()` to reproject the raster layer `spr_prec_nc` to match the polygon layer’s CRS.
+The `method = "bilinear"` option is used for resampling continuous raster data (such as precipitation)[^04-vector-raster-1], providing smoother interpolation.
+
+[^04-vector-raster-1]: `method = "nearest"` should be used for categorical raster data.
+See `?terra::project()` .
+
+```{r}
+sf_nc_county_proj <- st_transform(sf_nc_county,
+                                  crs = 32617)
+
+spr_prec_nc_proj <- terra::project(x = spr_prec_nc, 
+                                   y = crs(sf_nc_county_proj),
+                                   method = "bilinear") 
+```
+
+With both layers now in a common projected CRS, we can proceed with zonal statistics, ensuring that area-weighted calculations are geometrically accurate.
+
+In the code below, `exact_extract()` is used to calculate the mean precipitation within each county polygon (`sf_nc_county_proj`) from the reprojected raster `spr_prec_nc_proj`.
+The argument `fun = "mean"` specifies that we want to compute the simple mean of all raster cell values that overlap each polygon. 
+The `append_cols = TRUE` option ensures that all original attributes from the `sf_nc_county_proj` object are retained in the output, which makes it easier to link the results back to the spatial features.
+
+```{r}
+# NOTE: `progress = FALSE` turns off the progress bar for cleaner output
+(df_prec_county <- exact_extract(x = spr_prec_nc_proj,
+                                 y = sf_nc_county_proj,
+                                 fun = "mean",
+                                 append_cols = TRUE,
+                                 progress = FALSE) %>% 
+   as_tibble() %>% # convert to tibble
+   rename(precipitation = mean)) # rename the output column)
+
+```
+
+Although the output from `exact_extract()` is a regular data frame (not an `sf` object), we can easily merge the computed statistics back into the original spatial data using `left_join()`[^04-vector-raster-2].
+This allows us to retain the spatial geometry of the county polygons while adding the precipitation values as new attributes.
+
+In the example below, we assume that both the original `sf` object (`sf_nc_county`) and the extracted results (`df_prec_county`) share a common identifier column named `county`.
+
+```{r}
+(sf_nc_county_prec <- sf_nc_county %>% 
+   left_join(df_prec_county,
+             by = "county"))
+```
+
+The following plot uses `ggplot2` to visualize the mean precipitation values calculated for each county.
+The `geom_sf()` layer draws the county boundaries from the `sf_nc_county_prec` object, and the `aes(color = precipitation)` argument maps the precipitation values to a color gradient.
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_county_prec,
+          aes(fill = precipitation)) +
+  scale_fill_viridis_c() +
+  theme_bw()
+```
+
+[^04-vector-raster-2]: The `left_join()` function performs a key-based merge, adding the precipitation values from `df_prec_county` to the corresponding polygons in `sf_nc_county`.
+
+### Alternative approach
+
+The above example involved multiple steps to reproject both the raster and polygon layers into a common projected CRS, which is necessary for accurate area-based calculations. 
+
+However, the `exact_extract()` function provides a convenient alternative that avoids the need for explicit reprojection.
+By specifying `fun = "weighted_mean"` and `weights = "area"`, we instruct the function to calculate the mean precipitation for each polygon by weighting each raster cell’s contribution according to **the fraction of its area that overlaps the polygon**.
+
+This internal weighting allows `exact_extract()` to produce geometrically accurate results even when the layers remain in a geographic CRS (e.g., WGS 84), which is especially useful when working with global datasets or when reprojection is impractical.
+
+```{r}
+(df_prec_county_alt <- exact_extract(x = spr_prec_nc,
+                                     y = sf_nc_county,
+                                     fun = "weighted_mean",
+                                     weights = "area",
+                                     append_cols = TRUE,
+                                     progress = FALSE) %>% 
+   as_tibble() %>% # convert to tibble
+   rename(precipitation = weighted_mean)) # rename the output column
+```
+
+The numbers produced by the area-weighted approach without reprojection may differ slightly from those obtained using fully projected layers.
+
+In most cases, this difference is negligible, making the approximation both practical and efficient; especially when working across large spatial extents that span multiple UTM zones or even continents, where choosing a single appropriate projection becomes difficult.
+In such cases, the ability of `exact_extract()` to apply area-based weights directly in geographic CRS is a major advantage, as it simplifies preprocessing and avoids potential distortions from inappropriate projections.
+
+That said, if your analysis requires high spatial accuracy, for example, when modeling fine-scale ecological processes or when exact area measurements are critical, it is still recommended to reproject both raster and vector data to an appropriate projected CRS.
+Ultimately, the decision depends on the scale, purpose, and precision required by your specific application.
+
+## Buffer Analysis

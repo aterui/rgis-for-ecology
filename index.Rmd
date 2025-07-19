@@ -1,5 +1,5 @@
 --- 
-title: "Geospatial Analysis in Ecology"
+title: "R-GIS for Ecology"
 author: "Akira Terui"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site

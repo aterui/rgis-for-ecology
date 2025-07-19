@@ -49,12 +49,19 @@ Then, we'll save the imported data in `.rds` format to simplify later steps in o
 The `sf::st_read()` function from the `sf` package allows you to import shapefiles (`.shp`) as well as other standard GIS formats.
 For this exercise, we'll use county data in North Carolina, which is saved in the `data` subdirectory -- as mentioned, this data comes with four associated files (check the `data` subdirectory).
 
-```{r, eval = FALSE}
+```{r}
 # read a shapefile (e.g., ESRI Shapefile format)
-sf_nc_county <- st_read(dsn = "data/sf_nc_county.shp")
+# `quiet = TRUE` just for cleaner output
+(sf_nc_county <- st_read(dsn = "data/sf_nc_county.shp",
+                         quiet = TRUE))
 ```
 
-After making any desired changes, you can export the vector data using `sf::st_write()`.
+The first several lines of the output summarize the contents of an `sf` object. 
+It contains 100 features (rows), each with one attribute field and a geometry of type `MULTIPOLYGON` (line `Geometry type:`), which is commonly used to represent areas like counties. 
+The coordinates are XY two-dimensional (line `Dimension:`), and the bounding box shows the spatial extent of the data (line `Bounding box:`).
+The coordinate reference system (CRS) is WGS 84 (line `Geodetic CRS:`), a common geographic CRS based on latitude and longitude.
+
+You can export the vector data using `sf::st_write()`.
 This function supports writing to multiple formats, including Shapefile and GeoPackage.
 Check the `data` subdirectory to see the exported files.
 

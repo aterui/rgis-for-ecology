@@ -4,15 +4,15 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Chapter 4 Raster Data (terra basics) | Geospatial Analysis in Ecology</title>
+<title>Chapter 4 Raster Data (terra basics) | R-GIS for Ecology</title>
 <meta name="author" content="Akira Terui">
 <meta name="description" content='In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code. if (!require(pacman)) install.packages("packman")...'>
 <meta name="generator" content="bookdown 0.40 with bs4_book()">
-<meta property="og:title" content="Chapter 4 Raster Data (terra basics) | Geospatial Analysis in Ecology">
+<meta property="og:title" content="Chapter 4 Raster Data (terra basics) | R-GIS for Ecology">
 <meta property="og:type" content="book">
 <meta property="og:description" content='In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code. if (!require(pacman)) install.packages("packman")...'>
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chapter 4 Raster Data (terra basics) | Geospatial Analysis in Ecology">
+<meta name="twitter:title" content="Chapter 4 Raster Data (terra basics) | R-GIS for Ecology">
 <meta name="twitter:description" content='In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code. if (!require(pacman)) install.packages("packman")...'>
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
@@ -37,7 +37,7 @@
 
     <div class="d-flex align-items-start justify-content-between">
       <h1>
-        <a href="index.html" title="">Geospatial Analysis in Ecology</a>
+        <a href="index.html" title="">R-GIS for Ecology</a>
       </h1>
       <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
     </div>
@@ -54,7 +54,6 @@
 <li><a class="" href="coordinate-systems.html"><span class="header-section-number">2</span> Coordinate Systems</a></li>
 <li><a class="" href="vector-data-sf-basics.html"><span class="header-section-number">3</span> Vector Data (sf basics)</a></li>
 <li><a class="active" href="raster-data-terra-basics.html"><span class="header-section-number">4</span> Raster Data (terra basics)</a></li>
-<li><a class="" href="vector-raster-interactions.html"><span class="header-section-number">5</span> Vector-Raster Interactions</a></li>
 </ul>
 
         <div class="book-extra">
@@ -67,27 +66,177 @@
 <span class="header-section-number">4</span> Raster Data (<code>terra</code> basics)<a class="anchor" aria-label="anchor" href="#raster-data-terra-basics"><i class="fas fa-link"></i></a>
 </h1>
 <p>In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/trinker/pacman">pacman</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"packman"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">pacman</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pacman/man/p_load.html">p_load</a></span><span class="op">(</span><span class="va">tidyverse</span>,</span>
-<span>               <span class="va">sf</span>,</span>
-<span>               <span class="va">mapview</span><span class="op">)</span></span></code></pre></div>
+<span>               <span class="va">terra</span>,</span>
+<span>               <span class="va">tidyterra</span><span class="op">)</span></span></code></pre></div>
 <div id="raster-data-in-gis" class="section level2" number="4.1">
 <h2>
 <span class="header-section-number">4.1</span> Raster Data in GIS<a class="anchor" aria-label="anchor" href="#raster-data-in-gis"><i class="fas fa-link"></i></a>
 </h2>
+<p><strong>Raster data</strong> in GIS represents geographic information as a grid of pixels (or cells), where each cell has a value corresponding to a specific attribute such as elevation, temperature, or land cover type.
+Unlike vector data (points, lines, and polygons), raster data is particularly well-suited for continuous phenomena that vary smoothly across space.
+The resolution of a raster is determined by the size of its cells, with smaller cells providing finer detail.
+Raster datasets are often used in environmental modeling, remote sensing, and climate analysis, as they can efficiently represent large-scale spatial patterns.</p>
+<p>The <code>terra</code> package in R is a modern tool for handling raster (and vector spatial data), designed to replace the older <code>raster</code> package with faster performance and more intuitive syntax.
+It allows users to read, write, manipulate, and analyze raster datasets of various formats (e.g., GeoTIFF, NetCDF) and supports integration with vector data through the <code>sf</code> and <code>sp</code> packages.</p>
+<div id="data-format-1" class="section level3" number="4.1.1">
+<h3>
+<span class="header-section-number">4.1.1</span> Data Format<a class="anchor" aria-label="anchor" href="#data-format-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>A <strong>GeoTIFF</strong> is a commonly used raster file format in GIS that stores image data along with georeferencing information.
+That is, data that tells the software where the image belongs on the Earth’s surface.
+Unlike a regular TIFF image, a GeoTIFF includes embedded metadata such as CRS, map projection, pixel size, and spatial extent.</p>
+</div>
+<div id="readexport-raster-data" class="section level3" number="4.1.2">
+<h3>
+<span class="header-section-number">4.1.2</span> Read/Export Raster Data<a class="anchor" aria-label="anchor" href="#readexport-raster-data"><i class="fas fa-link"></i></a>
+</h3>
+<p>In the context of using the <code>terra</code> package in R, GeoTIFFs (<code>.tif</code>) are a standard input and output format for raster analysis.
+For example, you can load a GeoTIFF containing data using <code><a href="https://rspatial.github.io/terra/reference/rast.html">terra::rast()</a></code>, after which you may perform spatial operations such as cropping or masking.</p>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">spr_ex</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_example.tif"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## class       : SpatRaster 
+## dimensions  : 90, 95, 1  (nrow, ncol, nlyr)
+## resolution  : 0.008333333, 0.008333333  (x, y)
+## extent      : 5.741667, 6.533333, 49.44167, 50.19167  (xmin, xmax, ymin, ymax)
+## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+## source      : spr_example.tif 
+## name        : elevation 
+## min value   :       141 
+## max value   :       547</code></pre>
+<p>The output summarizes the contents of a <code>SpatRaster</code> object.
+It has 90 rows and 95 columns, forming a grid of raster cells (line <code>dimensions:</code>), with one data layer (or band).
+Each cell represents a rectangular area of 0.008333333 degrees in both x (longitude) and y (latitude) directions (line <code>resolution:</code>).
+The spatial extent of the raster is defined by the minimum and maximum coordinates in both directions (line <code>extent:</code>), covering a small area in Western Europe in this specific data.
+The CRS is WGS 84 (line <code>coord. ref.</code>), which uses geographic coordinates (longitude and latitude).
+The raster contains elevation data (line <code>name:</code>), with values ranging from 141 to 547 (lines <code>min value:</code> and <code>max value:</code>) in meters.</p>
+<p>The raster object in R can be exported using <code><a href="https://rspatial.github.io/terra/reference/writeRaster.html">terra::writeRaster()</a></code>:</p>
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># overwrite = TRUE enables overwriting</span></span>
+<span><span class="fu">writeRaster</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_ex</span>, </span>
+<span>            filename <span class="op">=</span> <span class="st">"data/spr_elev.tif"</span>,</span>
+<span>            overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>The object is now saved as <code>spr_elev.tif</code> in the <code>data</code> subdirectory, specified in the <code>filename</code> argument.
+Easy enough!</p>
+</div>
+<div id="mapping-1" class="section level3" number="4.1.3">
+<h3>
+<span class="header-section-number">4.1.3</span> Mapping<a class="anchor" aria-label="anchor" href="#mapping-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>Unlike <code>sf</code> vector objects, raster data is not natively supported by <code>ggplot2</code> for direct visualization.
+This means that typical <code>ggplot2</code> functions like <code><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf()</a></code> won’t work out of the box for raster layers.</p>
+<p>Fortunately, the <code>tidyterra</code> package extends <code>ggplot2</code> by providing functions designed specifically for raster visualization.
+Here, we can use <code><a href="https://dieghernan.github.io/tidyterra/reference/geom_spatraster.html">tidyterra::geom_spatraster()</a></code> to display raster data in a <code>ggplot2</code>-friendly format.
+In the following example, we’ll use <code>geom_spatraster()</code> to visualize the raster file <code>spr_ex</code> we previously loaded into R.</p>
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_ex</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-45-1.png" width="672"></div>
+</div>
+</div>
+<div id="crop" class="section level2" number="4.2">
+<h2>
+<span class="header-section-number">4.2</span> Crop<a class="anchor" aria-label="anchor" href="#crop"><i class="fas fa-link"></i></a>
+</h2>
+<p>The <code>crop()</code> function is a useful tool for trimming a raster layer down to a defined extent.
+This is particularly helpful when working with large raster files, which can be slow to process and visualize.</p>
+<p>To see how cropping works, let’s start by loading a precipitation dataset.
+This raster is a product from CHELSA (Climatologies at High resolution for the Earth’s Land Surface Areas):</p>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">spr_prec</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_prec_us.tif"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## class       : SpatRaster 
+## dimensions  : 3000, 6972, 1  (nrow, ncol, nlyr)
+## resolution  : 0.008333333, 0.008333333  (x, y)
+## extent      : -125.0001, -66.90014, 24.49986, 49.49986  (xmin, xmax, ymin, ymax)
+## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+## source      : spr_prec_us.tif 
+## name        : precipitation 
+## min value   :          49.8 
+## max value   :        5765.7</code></pre>
+<p>To inspect the spatial extent of the raster, we can use the <code><a href="https://rspatial.github.io/terra/reference/ext.html">terra::ext()</a></code> function from the <code>terra</code> package.
+This helps us understand the geographic coverage before cropping.</p>
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ext</span><span class="op">(</span><span class="va">spr_prec</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## SpatExtent : -125.00013910885, -66.90013934125, 24.49986065315, 49.49986055315 (xmin, xmax, ymin, ymax)</code></pre>
+<p>This layer covers the entire US, so it’s a pretty big rater (check with <code>geom_spatraster()</code>).</p>
+<p>To crop a raster, we provide the bounding box of the area we want to retain.
+In the example below, we keep the area bounded by longitudes -80 to -75 and latitudes 34 to 37.</p>
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## crop to:</span></span>
+<span><span class="co">## longitude range: -80 to -75</span></span>
+<span><span class="co">## latitude range: 34 to 37</span></span>
+<span><span class="va">spr_prec_crop</span> <span class="op">&lt;-</span> <span class="fu">crop</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec</span>,</span>
+<span>                      y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">80</span>, <span class="op">-</span><span class="fl">75</span>, <span class="fl">34</span>, <span class="fl">37</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Since it’s a little unclear where this raster spans geographically, we load a vector dataset of North Carolina counties.
+We can then overlay both the raster and vector data to get a better sense of geographic coverage.</p>
+<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## load county vector </span></span>
+<span><span class="va">sf_nc_county</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/sf_nc_county.rds"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_prec_crop</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
+<span>          alpha <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> <span class="co">## alpha = 0.25 makes the polygon layer transparent</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-49-1.png" width="672"></div>
+<p>The resulting plot reveals that the raster and vector extents do not perfectly align.
+In later analyses, it’s common to work with raster and vector data together, so it’s helpful to know how to crop a raster layer using the spatial extent of a vector object.</p>
+<p>In the following example, we crop the raster using the extent of the <code>sf_nc_county</code> object, which ensures that the spatial extents of the two datasets match.</p>
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spr_prec_nc</span> <span class="op">&lt;-</span> <span class="fu">crop</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec</span>,</span>
+<span>                    y <span class="op">=</span> <span class="va">sf_nc_county</span><span class="op">)</span></span></code></pre></div>
+<p>Let’s visualize the cropped raster and vector data together again to confirm that they now align correctly.</p>
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_prec_nc</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
+<span>          alpha <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> <span class="co">## alpha = 0.25 makes the polygon layer transparent</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-51-1.png" width="672"></div>
+<p>Sweet.</p>
+</div>
+<div id="merge" class="section level2" number="4.3">
+<h2>
+<span class="header-section-number">4.3</span> Merge<a class="anchor" aria-label="anchor" href="#merge"><i class="fas fa-link"></i></a>
+</h2>
+</div>
+<div id="stack" class="section level2" number="4.4">
+<h2>
+<span class="header-section-number">4.4</span> Stack<a class="anchor" aria-label="anchor" href="#stack"><i class="fas fa-link"></i></a>
+</h2>
+</div>
+<div id="projection" class="section level2" number="4.5">
+<h2>
+<span class="header-section-number">4.5</span> Projection<a class="anchor" aria-label="anchor" href="#projection"><i class="fas fa-link"></i></a>
+</h2>
 
 </div>
 </div>
+
+
+
+
+
+
   <div class="chapter-nav">
 <div class="prev"><a href="vector-data-sf-basics.html"><span class="header-section-number">3</span> Vector Data (sf basics)</a></div>
-<div class="next"><a href="vector-raster-interactions.html"><span class="header-section-number">5</span> Vector-Raster Interactions</a></div>
+<div class="empty"></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
 <li><a class="nav-link" href="#raster-data-terra-basics"><span class="header-section-number">4</span> Raster Data (terra basics)</a></li>
-<li><a class="nav-link" href="#raster-data-in-gis"><span class="header-section-number">4.1</span> Raster Data in GIS</a></li>
+<li>
+<a class="nav-link" href="#raster-data-in-gis"><span class="header-section-number">4.1</span> Raster Data in GIS</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#data-format-1"><span class="header-section-number">4.1.1</span> Data Format</a></li>
+<li><a class="nav-link" href="#readexport-raster-data"><span class="header-section-number">4.1.2</span> Read/Export Raster Data</a></li>
+<li><a class="nav-link" href="#mapping-1"><span class="header-section-number">4.1.3</span> Mapping</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#crop"><span class="header-section-number">4.2</span> Crop</a></li>
+<li><a class="nav-link" href="#merge"><span class="header-section-number">4.3</span> Merge</a></li>
+<li><a class="nav-link" href="#stack"><span class="header-section-number">4.4</span> Stack</a></li>
+<li><a class="nav-link" href="#projection"><span class="header-section-number">4.5</span> Projection</a></li>
 </ul>
 
       <div class="book-extra">
@@ -104,7 +253,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Geospatial Analysis in Ecology</strong>" was written by Akira Terui. It was last built on 2025-07-17.</p>
+    <p>"<strong>R-GIS for Ecology</strong>" was written by Akira Terui. It was last built on 2025-07-19.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

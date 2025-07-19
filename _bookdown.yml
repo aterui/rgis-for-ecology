@@ -4,8 +4,7 @@ language:
     chapter_name: "Chapter "
 rmd_files: ["index.Rmd",
             "chapter/01-crs.Rmd",
-            "chapter/02-vector.Rmd"]
-            # ,
-            # "chapter/03-raster.Rmd",
+            "chapter/02-vector.Rmd",
+            "chapter/03-raster.Rmd"]
             # "chapter/04-vector-raster.Rmd"]
 output_dir: "docs"

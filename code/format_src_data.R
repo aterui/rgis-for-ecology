@@ -187,6 +187,10 @@ sf_nc_county <- st_read(system.file("shape/nc.shp", package = "sf"),
   mutate(county = str_to_lower(county)) %>% 
   st_transform(crs = 4326)
 
+st_write(sf_nc_county, 
+         dsn = "data/sf_nc_county.shp", 
+         append = FALSE)
+
 saveRDS(sf_nc_county, "data/sf_nc_county.rds")
 
 
@@ -228,7 +232,7 @@ writeRaster(spr_dem,
 
 ## climate data
 spr_chelsa_nc <- list.files("E://gis//chelsa",
-                      full.names = TRUE) %>% 
+                            full.names = TRUE) %>% 
   lapply(FUN = function(x) {
     
     y <- rast(x)

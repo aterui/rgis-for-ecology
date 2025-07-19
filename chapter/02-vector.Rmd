@@ -146,7 +146,7 @@ mapview(sf_nc_county,
 
 ### Mapping
 
-To visualize the three types of vector data—points, lines, and polygons—together, we can use the `ggplot2` package with its `geom_sf()` function, which natively supports spatial features.
+To visualize various types of vector data together, we can use the `ggplot2` package with its `geom_sf()` function, which natively supports spatial features.
 
 We’ll start by plotting just the **polygon layer** to show the county boundaries:
 
@@ -179,8 +179,8 @@ ggplot() +
 While the map we created earlier provides a good overview, it may appear odd because the stream network is only available for Guilford County, yet the other layers (such as survey sites and county boundaries) span the entire state. 
 To better align the spatial representation, we might want to focus on Guilford County across all layers.
 
-One of the major benefits of using R GIS analysis is that spatial features can be manipulated just like regular data frames. 
-This kind of spatial subsetting is also possible in platforms like ArcGIS or QGIS, but often involves tedious click-and-save workflows, which I personally try to avoid.
+<!-- One of the major benefits of using R GIS analysis is that spatial features can be manipulated just like regular data frames.  -->
+<!-- This kind of spatial subsetting is also possible in platforms like ArcGIS or QGIS, but often involves tedious click-and-save workflows, which I personally try to avoid. -->
 
 To narrow down the survey sites to only those that fall within Guilford County, we can use the `sf::st_join()` function from the `sf` package. 
 This function performs a spatial join, associating attributes from one layer (e.g., counties) to another (e.g., point locations) based on their geographic overlap.
@@ -241,8 +241,95 @@ ggplot() +
   theme_bw()
 ```
 
-### Geometric Analysis
+### Geometric analysis
 
-<!-- ### Transform CRS -->
+In vector data analysis, we can perform various geometric operations such as calculating the length of polylines or the area of polygons.
+However, it’s important to ensure that the data is using an appropriate CRS because geometric computations assume that features are laid out in a flat, two-dimensional space -- **geodetic CRS should not be used**.
+In most cases, it is recommended to transform the data to a projected CRS that is suitable for the region of interest. 
 
-<!-- ### Geometric attributes -->
+#### Length{.unnumbered}
+
+To calculate the length of polylines, we can use the `sf::st_length()` function.
+Before doing so, it's important to transform the data to a projected CRS. 
+In this case, we'll use `WGS 84 / UTM Zone 17N (EPSG:32617)`, which is appropriate for our sample data (North Carolina, USA).
+We can use `st_transform()` to reproject the spatial object `sf_str` to the UTM Zone 17N coordinate reference system (`EPSG:32617`).
+
+```{r}
+(sf_str_proj <- st_transform(sf_str, crs = 32617))
+```
+
+This transformation ensures that length calculations are performed in meters.
+
+```{r}
+v_str_l <- st_length(sf_str_proj)
+
+# print the first 10 elements
+head(v_str_l)
+```
+
+The object `v_str_l` contains the length of each stream segment, in the same order as the features in `sf_str_proj`. 
+We can attach them directly to the spatial object as a new column using `dplyr::mutate()`. 
+This allows us to retain both the geometry and the calculated lengths within a single data frame structure.
+
+```{r}
+
+(sf_str_w_len <- sf_str %>% 
+  mutate(length = v_str_l))
+
+```
+
+Now, each feature in `sf_str_w_len` includes its corresponding length as an attribute, making it easier to visualize or analyze within the same spatial object.
+
+Alternatively, this process can be done in a single step by combining `mutate()` and `st_length()` directly.
+
+```{r, eval = FALSE}
+sf_str_w_len <- sf_str %>% 
+  st_transform(crs = 32617) %>%       # transform to projected CRS (utm zone 17n) for accurate length calculation
+  mutate(length = st_length(.)) %>%   # calculate length of each feature and store it in a new column
+  st_transform(crs = 4326)           # transform back to geographic CRS (wgs84) for consistency with other layers
+
+# # the above code returns identical results with the code below
+# sf_str_proj <- st_transform(sf_str, crs = 32617)
+# v_str_l <- st_length(sf_str_proj)               
+# sf_str <- sf_str %>% 
+#   mutate(length = v_str_l)                      
+```
+
+
+#### Area{.unnumbered}
+
+The area of polygons can be calculated in a similar manner using the `sf::st_area()` function.
+Again, do not forget CRS transformation before performing geometric calculations.
+
+```{r}
+(sf_nc_county_proj <- st_transform(sf_nc_county, crs = 32617))
+```
+
+Then, apply `st_area()` to the projected polygon data:
+
+```{r}
+v_area <- st_area(sf_nc_county)
+
+# print the first 10 elements
+head(v_area)
+```
+
+As we saw in the example of stream polylines, the object `v_area` contains the area of each county. 
+Let's attach them directly to the spatial object as a new column using `dplyr::mutate()` again.
+
+```{r}
+
+(sf_nc_county_w_area <- sf_nc_county %>% 
+  mutate(area = v_area))
+
+```
+
+Good, now each feature in `sf_nc_county_w_area` includes its corresponding area as an attribute.
+This process can be done in a single step as well.
+
+```{r, eval = FALSE}
+sf_nc_county_w_area <- sf_nc_county %>% 
+  st_transform(crs = 32617) %>%       # transform to projected CRS (utm zone 17n) for accurate area calculation
+  mutate(area = st_area(.)) %>%       # calculate area of each polygon and store it in a new column
+  st_transform(crs = 4326)            # transform back to geographic CRS (wgs84) for consistency with other layers
+```

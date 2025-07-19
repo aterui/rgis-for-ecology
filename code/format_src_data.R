@@ -231,8 +231,9 @@ writeRaster(spr_dem,
             overwrite = TRUE)
 
 ## climate data
-spr_chelsa_nc <- list.files("E://gis//chelsa",
-                            full.names = TRUE) %>% 
+spr_chelsa_us <- list.files("data/src",
+                            full.names = TRUE,
+                            pattern = "CHELSA") %>% 
   lapply(FUN = function(x) {
     
     y <- rast(x)
@@ -244,15 +245,15 @@ spr_chelsa_nc <- list.files("E://gis//chelsa",
     
   }) %>% 
   rast() %>% 
-  terra::crop(st_bbox(sf_nc_county))
+  terra::crop(c(-125, -66.9, 24.5, 49.5))
 
-spr_tmp_nc <- spr_chelsa_nc$temperature
-spr_prec_nc <- spr_chelsa_nc$precipitation
+spr_tmp_us <- spr_chelsa_us$temperature
+spr_prec_us <- spr_chelsa_us$precipitation
 
-writeRaster(spr_tmp_nc,
-            "data/spr_tmp_nc.tif",
+writeRaster(spr_tmp_us,
+            "data/spr_tmp_us.tif",
             overwrite = TRUE)
 
-writeRaster(spr_prec_nc,
-            "data/spr_prec_nc.tif",
+writeRaster(spr_prec_us,
+            "data/spr_prec_us.tif",
             overwrite = TRUE)

@@ -21,13 +21,13 @@ Raster datasets are often used in environmental modeling, remote sensing, and cl
 The `terra` package in R is a modern tool for handling raster (and vector spatial data), designed to replace the older `raster` package with faster performance and more intuitive syntax.
 It allows users to read, write, manipulate, and analyze raster datasets of various formats (e.g., GeoTIFF, NetCDF) and supports integration with vector data through the `sf` and `sp` packages.
 
-### Data Format
+### Data format
 
 A **GeoTIFF** is a commonly used raster file format in GIS that stores image data along with georeferencing information.
 That is, data that tells the software where the image belongs on the Earth's surface.
 Unlike a regular TIFF image, a GeoTIFF includes embedded metadata such as CRS, map projection, pixel size, and spatial extent.
 
-### Read/Export Raster Data
+### Read/Export raster data
 
 In the context of using the `terra` package in R, GeoTIFFs (`.tif`) are a standard input and output format for raster analysis.
 For example, you can load a GeoTIFF containing data using `terra::rast()`, after which you may perform spatial operations such as cropping or masking.
@@ -74,7 +74,7 @@ ggplot() +
 The `crop()` function is a useful tool for trimming a raster layer down to a defined extent.
 This is particularly helpful when working with large raster files, which can be slow to process and visualize.
 
-### Crop by a given extent {.unnumbered}
+### Given extent
 
 To see how cropping works, let’s start by loading a precipitation dataset.
 This raster is a product from CHELSA (Climatologies at High resolution for the Earth's Land Surface Areas):
@@ -119,7 +119,7 @@ ggplot() +
 
 The resulting plot reveals that the raster and vector extents do not perfectly align.
 
-### Crop by a vector extent {.unnumbered}
+### Vector extent
 
 In later analyses, it's common to work with raster and vector data together, so it's helpful to know how to crop a raster layer using the spatial extent of a vector object.
 
@@ -146,7 +146,7 @@ The `merge()` function performs the opposite of `crop()`: it combines multiple r
 This operation is essential when working with large geographic datasets that span multiple tiles.
 For example, if you need to calculate summary statistics within a polygon boundary that crosses several raster layers, those rasters must first be merged to ensure the statistics are computed accurately across the entire area of interest.
 
-### Merge two tiles {.unnumbered}
+### Two tiles
 
 To try out the `merge()` function, we’ll use a set of precipitation raster tiles, each representing one quarter of North Carolina.
 
@@ -184,7 +184,7 @@ ggplot() +
           alpha = 0.25)
 ```
 
-### Merge more than two tiles {.unnumbered}
+### More than two tiles
 
 If we wish to merge more than two raster tiles at once, it's often more efficient to use a SpatRaster Collection.
 This allows us to organize multiple `SpatRaster` objects into a single collection that can be handled by functions like `merge()` more easily.
@@ -221,25 +221,111 @@ ggplot() +
 
 ## Stack
 
-If we have multiple layers of the same extent and resolution, we can "stack" them to aggregate.
-This stacked raster is particularly usefule when analyzing multiple environmental variables at once - see Chapter
+If we have multiple raster layers with the same extent and resolution, we can "stack" them into a single object for joint analysis.
+A stacked raster is particularly useful when working with multiple environmental variables simultaneously—such as temperature, precipitation, and elevation.
+This approach allows us to perform cell-by-cell operations across layers.
+See Chapter XX for more details.
+\@ref(vector-raster-interactions).
+
+Here, we’ll work with precipitation and temperature layers from CHELSA to create a stacked raster.
+Since these layers share the same extent and resolution, they represent an ideal case for stacking.
+Let’s begin by loading the layers into R.
 
 ```{r}
 spr_prec_nc <- rast("data/spr_prec_nc.tif")
 spr_tmp_nc <- rast("data/spr_tmp_nc.tif")
 ```
 
+Each raster object currently contains a single layer with its own data.
+You can print the object to inspect its contents—be sure to check both `spr_prec_nc` and `spr_tmp_nc` as examples.
+
+```{r}
+# print precipitation layer - do the same for spr_tmp_nc as well!
+print(spr_prec_nc)
+```
+
+Stacking these raster layers is simple - we can use the `c()` function - just like creating a vector.
+
+```{r}
+(spr_pt_nc <- c(spr_prec_nc,
+                spr_tmp_nc))
+```
+
+This output shows a stacked raster object of class `SpatRaster` that contains two layers—as indicated by `nlyr: 2`.
+Each layer corresponds to a different environmental variable: precipitation and temperature, as listed under the `names` field.
+
+-   The raster has a consistent spatial structure, with 325 rows and 1064 columns, and a resolution of approximately 0.0083 degrees in both directions.
+
+-   Both layers share the same extent and coordinate reference system (`EPSG:4326`), which is a requirement for stacking.
+
+-   Under `sources`, we can see the original file names (`spr_prec_nc.tif` and `spr_tmp_nc.tif`) that were combined.
+
+-   The `min values` and `max values` show the data range for each variable.
+
+Because these layers are perfectly aligned, stacking them allows for cell-by-cell analysis across variables, which is useful for modeling, classification, or other multivariate environmental analyses.
+
+We can access each layer separately using `$` operator – this returns the same output with `spr_prec_nc`.
+
+```{r}
+# precipitation
+spr_pt_nc$precipitation
+```
+
+## Reprojection
+
+In raster data, we use `terra::project()` to change the CRS.
+To try this out, let’s use the precipitation data for North Carolina.
+This layer is originally defined in a geodetic CRS, WGS84, as specified in the source data (see line `coord. ref.`).
+
 ```{r}
 print(spr_prec_nc)
 ```
 
-```{r}
-print(spr_tmp_nc)
-```
+We can reproject it to a projected CRS using the `project()` function.
+Note that, unlike `sf::st_transform()`, `terra::project()` requires the EPSG code to be supplied in the format `"EPSG:XXXX"`.
 
 ```{r}
-spr_pt_nc <- c(spr_prec_nc,
-               spr_tmp_nc)
+(spr_prec_nc_proj <- project(x = spr_prec_nc,
+                             y = "EPSG:32617"))
 ```
 
-## Projection
+The `coord. ref.` now says `WGS 84 / UTM zone 17N (EPSG:32617)`
+
+### Resampling
+
+While reprojection in raster data may seem straightforward, it involves important details; particularly the resampling of raster values.
+When a raster is reprojected, its grid cells are re-aligned to fit the new CRS.
+However, the new grid typically does not align perfectly with the original one.
+As a result, the new cell centers may fall between the original cell locations, creating overlaps or gaps that require estimation.
+
+This estimation process is known as **resampling**, and it determines how values from the original raster are reassigned to the new grid.
+For example, we might assign each new cell the value of the nearest original cell (nearest-neighbor method), or compute a weighted average from surrounding cells (bilinear or cubic interpolation).
+The choice of resampling method depends on the type of data and the desired balance between accuracy and efficiency.
+The following list provides key methods for resampling:
+
+-   **Nearest neighbor** is the simplest resampling method.
+    It assigns each new cell the value of the closest cell in the original raster without any averaging.
+    This method is best used for categorical data (e.g., land cover types or habitat classes) where preserving exact values is essential.
+    **Should not be used for for continuous data.**
+
+-   **Bilinear interpolation** estimates each new cell value by taking a weighted average of the four nearest original cells.
+    It produces smoother results than nearest neighbor and is well-suited for continuous data such as temperature, elevation, or precipitation.
+    **Should not be used for categorical data.**
+
+-   **Cubic interpolation** uses 16 surrounding cells to calculate a smoother, more refined estimate of new values.
+    It’s appropriate for continuous data when visual smoothness or gradient preservation is important, such as in elevation models or remote sensing imagery.
+    While more accurate for smooth surfaces, it is slower and may oversmooth sharp transitions.
+
+By default, `terra::project()` applies the nearest neighbor method (`method = "near"`) when the input raster contains discrete data, and uses bilinear interpolation (`method = "bilinear"`) for continuous data.
+More options are available, and you can specify them in the method argument of the function (see `?terra::project` for more details).
+
+### Non-reversible
+
+We must be aware of key differences from vector data regarding reprojection.
+In vector data, coordinate transformations are generally reversible, meaning that when you reproject a vector layer to a new CRS and then transform it back to the original CRS, the geometries will retain their original coordinates with high precision.
+This is possible because vector data (points, lines, polygons) are defined by discrete coordinate values, which can be precisely transformed using mathematical rules without interpolation.
+
+In contrast, raster reprojection with `terra::project()` is not reversible.
+This is because raster data consist of a grid of cells, and when reprojecting, the cell values must be resampled to fit a new grid layout in the target CRS.
+This involves interpolation (e.g., bilinear or nearest-neighbor methods), which can introduce small changes or smoothing in the data.
+As a result, reprojecting a raster to a new CRS and then back to the original CRS will not perfectly recover the original values or alignment.

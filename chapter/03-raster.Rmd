@@ -1,6 +1,7 @@
 # Raster Data (`terra` basics)
 
-In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code.
+In this chapter, we will work with the following packages.
+Before starting any exercises, make sure to run the following code.
 
 ```{r}
 if (!require(pacman)) install.packages("packman")
@@ -34,11 +35,12 @@ For example, you can load a GeoTIFF containing data using `terra::rast()`, after
 ```{r}
 (spr_ex <- rast("data/spr_example.tif"))
 ```
+
 The output summarizes the contents of a `SpatRaster` object.
-It has 90 rows and 95 columns, forming a grid of raster cells (line `dimensions:`), with one data layer (or band). 
-Each cell represents a rectangular area of 0.008333333 degrees in both x (longitude) and y (latitude) directions (line `resolution:`). 
-The spatial extent of the raster is defined by the minimum and maximum coordinates in both directions (line `extent:`), covering a small area in Western Europe in this specific data. 
-The CRS is WGS 84 (line `coord. ref.`), which uses geographic coordinates (longitude and latitude). 
+It has 90 rows and 95 columns, forming a grid of raster cells (line `dimensions:`), with one data layer (or band).
+Each cell represents a rectangular area of 0.008333333 degrees in both x (longitude) and y (latitude) directions (line `resolution:`).
+The spatial extent of the raster is defined by the minimum and maximum coordinates in both directions (line `extent:`), covering a small area in Western Europe in this specific data.
+The CRS is WGS 84 (line `coord. ref.`), which uses geographic coordinates (longitude and latitude).
 The raster contains elevation data (line `name:`), with values ranging from 141 to 547 (lines `min value:` and `max value:`) in meters.
 
 The raster object in R can be exported using `terra::writeRaster()`:
@@ -58,7 +60,7 @@ Easy enough!
 Unlike `sf` vector objects, raster data is not natively supported by `ggplot2` for direct visualization.
 This means that typical `ggplot2` functions like `geom_sf()` won't work out of the box for raster layers.
 
-Fortunately, the `tidyterra` package extends `ggplot2` by providing functions designed specifically for raster visualization. 
+Fortunately, the `tidyterra` package extends `ggplot2` by providing functions designed specifically for raster visualization.
 Here, we can use `tidyterra::geom_spatraster()` to display raster data in a `ggplot2`-friendly format.
 In the following example, we’ll use `geom_spatraster()` to visualize the raster file `spr_ex` we previously loaded into R.
 
@@ -69,12 +71,12 @@ ggplot() +
 
 ## Crop
 
-The `crop()` function is a useful tool for trimming a raster layer down to a defined extent. 
+The `crop()` function is a useful tool for trimming a raster layer down to a defined extent.
 This is particularly helpful when working with large raster files, which can be slow to process and visualize.
 
-### Crop by a given extent{.unnumbered}
+### Crop by a given extent {.unnumbered}
 
-To see how cropping works, let’s start by loading a precipitation dataset. 
+To see how cropping works, let’s start by loading a precipitation dataset.
 This raster is a product from CHELSA (Climatologies at High resolution for the Earth's Land Surface Areas):
 
 ```{r}
@@ -90,7 +92,7 @@ ext(spr_prec)
 
 This layer covers the entire US, so it's a pretty big raster (check with `geom_spatraster()`).
 
-To crop a raster, we provide the bounding box of the area we want to retain. 
+To crop a raster, we provide the bounding box of the area we want to retain.
 In the example below, we keep the area bounded by longitudes -80 to -75 and latitudes 34 to 37.
 
 ```{r}
@@ -117,7 +119,7 @@ ggplot() +
 
 The resulting plot reveals that the raster and vector extents do not perfectly align.
 
-### Crop by a vector extent{.unnumbered}
+### Crop by a vector extent {.unnumbered}
 
 In later analyses, it's common to work with raster and vector data together, so it's helpful to know how to crop a raster layer using the spatial extent of a vector object.
 
@@ -140,11 +142,11 @@ ggplot() +
 
 ## Merge
 
-The `merge()` function performs the opposite of `crop()`: it combines multiple raster layers into a single, unified raster. 
-This operation is essential when working with large geographic datasets that span multiple tiles. 
+The `merge()` function performs the opposite of `crop()`: it combines multiple raster layers into a single, unified raster.
+This operation is essential when working with large geographic datasets that span multiple tiles.
 For example, if you need to calculate summary statistics within a polygon boundary that crosses several raster layers, those rasters must first be merged to ensure the statistics are computed accurately across the entire area of interest.
 
-### Merge two tiles{.unnumbered}
+### Merge two tiles {.unnumbered}
 
 To try out the `merge()` function, we’ll use a set of precipitation raster tiles, each representing one quarter of North Carolina.
 
@@ -166,7 +168,7 @@ ggplot() +
 
 Check the other layers (`spr_ne`, `spr_sw`, `spr_se`) -- each one covers a different quarter of North Carolina.
 
-While these individual tiles are useful for, e.g., county-level analysis, they fall short if you want to perform a statewide analysis. 
+While these individual tiles are useful for, e.g., county-level analysis, they fall short if you want to perform a statewide analysis.
 Merging two tiles into a single raster is straightforward using the `merge()` function.
 
 ```{r}
@@ -182,9 +184,10 @@ ggplot() +
           alpha = 0.25)
 ```
 
-### Merge more than two tiles{.unnumbered}
+### Merge more than two tiles {.unnumbered}
 
-If we wish to merge more than two raster tiles at once, it's often more efficient to use a SpatRaster Collection. This allows us to organize multiple `SpatRaster` objects into a single collection that can be handled by functions like `merge()` more easily.
+If we wish to merge more than two raster tiles at once, it's often more efficient to use a SpatRaster Collection.
+This allows us to organize multiple `SpatRaster` objects into a single collection that can be handled by functions like `merge()` more easily.
 
 First, we gather the individual tiles into a list:
 
@@ -217,5 +220,26 @@ ggplot() +
 ```
 
 ## Stack
+
+If we have multiple layers of the same extent and resolution, we can "stack" them to aggregate.
+This stacked raster is particularly usefule when analyzing multiple environmental variables at once - see Chapter
+
+```{r}
+spr_prec_nc <- rast("data/spr_prec_nc.tif")
+spr_tmp_nc <- rast("data/spr_tmp_nc.tif")
+```
+
+```{r}
+print(spr_prec_nc)
+```
+
+```{r}
+print(spr_tmp_nc)
+```
+
+```{r}
+spr_pt_nc <- c(spr_prec_nc,
+               spr_tmp_nc)
+```
 
 ## Projection

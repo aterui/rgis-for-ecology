@@ -198,7 +198,7 @@ saveRDS(sf_nc_county, "data/sf_nc_county.rds")
 
 library(wrapbox)
 
-## upstream watershed area
+## upstream watershed area ####
 spr_upa <- list.files("E://gis//merithydro",
                       full.names = TRUE,
                       pattern = get_key(sf_nc_county)) %>% 
@@ -214,7 +214,7 @@ writeRaster(spr_upa,
             "data/spr_upa_nc.tif",
             overwrite = TRUE)
 
-## elevation
+## elevation ####
 spr_dem <- list.files("E://gis//merithydro",
                       full.names = TRUE,
                       pattern = get_key(sf_nc_county)) %>% 
@@ -230,7 +230,7 @@ writeRaster(spr_dem,
             "data/spr_dem_nc.tif",
             overwrite = TRUE)
 
-## climate data
+## climate data ####
 spr_chelsa_us <- list.files("data/src",
                             full.names = TRUE,
                             pattern = "CHELSA") %>% 
@@ -257,3 +257,38 @@ writeRaster(spr_tmp_us,
 writeRaster(spr_prec_us,
             "data/spr_prec_us.tif",
             overwrite = TRUE)
+
+## split data ####
+
+split_raster_four <- function(r) {
+  e <- ext(r)
+  xm <- (e$xmax + e$xmin) / 2
+  ym <- (e$ymax + e$ymin) / 2
+  
+  # Define extents for four quadrants
+  e1 <- ext(e$xmin, xm, ym, e$ymax)  # upper-left
+  e2 <- ext(xm, e$xmax, ym, e$ymax)  # upper-right
+  e3 <- ext(e$xmin, xm, e$ymin, ym)  # lower-left
+  e4 <- ext(xm, e$xmax, e$ymin, ym)  # lower-right
+  
+  # Crop the raster into panels
+  list(
+    UL = crop(r, e1),
+    UR = crop(r, e2),
+    LL = crop(r, e3),
+    LR = crop(r, e4)
+  )
+}
+
+spr_prec_nc <- rast("data/spr_prec_nc.tif")
+list_spr <- split_raster_four(spr_prec_nc)
+r <- c("nw", "ne", "sw", "se")
+
+lapply(seq_len(length(list_spr)),
+       function(i) {
+         writeRaster(list_spr[[i]],
+                     filename = paste0("data/spr_prec_nc",
+                                       r[i],
+                                       ".tif"),
+                     overwrite = TRUE)
+       })

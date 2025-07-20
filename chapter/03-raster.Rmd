@@ -72,6 +72,8 @@ ggplot() +
 The `crop()` function is a useful tool for trimming a raster layer down to a defined extent. 
 This is particularly helpful when working with large raster files, which can be slow to process and visualize.
 
+### Crop by a given extent{.unnumbered}
+
 To see how cropping works, let’s start by loading a precipitation dataset. 
 This raster is a product from CHELSA (Climatologies at High resolution for the Earth's Land Surface Areas):
 
@@ -114,6 +116,9 @@ ggplot() +
 ```
 
 The resulting plot reveals that the raster and vector extents do not perfectly align.
+
+### Crop by a vector extent{.unnumbered}
+
 In later analyses, it's common to work with raster and vector data together, so it's helpful to know how to crop a raster layer using the spatial extent of a vector object.
 
 In the following example, we crop the raster using the extent of the `sf_nc_county` object, which ensures that the spatial extents of the two datasets match.
@@ -179,7 +184,7 @@ ggplot() +
 
 ### Merge more than two tiles{.unnumbered}
 
-If we wish to merge more than two raster tiles at once, it's often more efficient to use a SpatRaster Collection. This allows us to organize multiple SpatRaster objects into a single collection that can be handled by functions like merge() more easily.
+If we wish to merge more than two raster tiles at once, it's often more efficient to use a SpatRaster Collection. This allows us to organize multiple `SpatRaster` objects into a single collection that can be handled by functions like `merge()` more easily.
 
 First, we gather the individual tiles into a list:
 

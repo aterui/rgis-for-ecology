@@ -1,6 +1,7 @@
 # Vector Data (`sf` basics)
 
-In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code.
+In this chapter, we will work with the following packages.
+Before starting any exercises, make sure to run the following code.
 
 ```{r}
 if (!require(pacman)) install.packages("packman")
@@ -22,9 +23,11 @@ Learning objectives:
 
 ## Vector Data in GIS
 
-In GIS, **vector data** is one of the primary ways to represent geographic features on a map. Vector data uses **geometric shapes** -- specifically **points, lines, and polygons** -- to model real-world objects.
+In GIS, **vector data** is one of the primary ways to represent geographic features on a map.
+Vector data uses **geometric shapes** -- specifically **points, lines, and polygons** -- to model real-world objects.
 
-Each vector feature can also carry **attribute data**, which are stored in a table linked to the spatial features. For example, a polygon representing a park might include attributes such as its name, size, or type of vegetation.
+Each vector feature can also carry **attribute data**, which are stored in a table linked to the spatial features.
+For example, a polygon representing a park might include attributes such as its name, size, or type of vegetation.
 
 Vector data is particularly useful for representing clearly defined boundaries and discrete features, and it allows for detailed spatial analysis and accurate map production.
 
@@ -32,18 +35,19 @@ Vector data is particularly useful for representing clearly defined boundaries a
 
 Traditionally, vector data has been stored in the **ESRI Shapefile** format (`.shp`).
 This format was originally developed by ESRI in the 1990s and remains widely used across many GIS platforms.
-However, it is somewhat cumbersome because it is not a single file; shapefiles require at least **four associated files** (`.shp`, `.shx`, `.dbf`, and `.prj`) to function properly. These files must be kept together, which makes file management and sharing more error-prone.
+However, it is somewhat cumbersome because it is not a single file; shapefiles require at least **four associated files** (`.shp`, `.shx`, `.dbf`, and `.prj`) to function properly.
+These files must be kept together, which makes file management and sharing more error-prone.
 
 In recent years, the **GeoPackage** format (`.gpkg`) has gained popularity.
 It simplifies data storage by combining all necessary components into a single, portable file.
 
-In the context of R, even better, vector data can also be saved using the native RDS format (`.rds`). 
+In the context of R, even better, vector data can also be saved using the native RDS format (`.rds`).
 This format is not cross-platform compatible with other GIS software, but it offers advantages within R: it is more **memory efficient** and often results in smaller file sizes.
 For these reasons, this book primarily uses the `.rds` format for storing vector data, unless compatibility with external software requires otherwise.
 
 ### Read/Export vector Data
 
-Since it is still common to share data in ESRI Shapefile format, we'll start by loading a `.shp` file into R. 
+Since it is still common to share data in ESRI Shapefile format, we'll start by loading a `.shp` file into R.
 Then, we'll save the imported data in `.rds` format to simplify later steps in our workflow.
 
 The `sf::st_read()` function from the `sf` package allows you to import shapefiles (`.shp`) as well as other standard GIS formats.
@@ -56,8 +60,8 @@ For this exercise, we'll use county data in North Carolina, which is saved in th
                          quiet = TRUE))
 ```
 
-The first several lines of the output summarize the contents of an `sf` object. 
-It contains 100 features (rows), each with one attribute field and a geometry of type `MULTIPOLYGON` (line `Geometry type:`), which is commonly used to represent areas like counties. 
+The first several lines of the output summarize the contents of an `sf` object.
+It contains 100 features (rows), each with one attribute field and a geometry of type `MULTIPOLYGON` (line `Geometry type:`), which is commonly used to represent areas like counties.
 The coordinates are XY two-dimensional (line `Dimension:`), and the bounding box shows the spatial extent of the data (line `Bounding box:`).
 The coordinate reference system (CRS) is WGS 84 (line `Geodetic CRS:`), a common geographic CRS based on latitude and longitude.
 
@@ -78,7 +82,7 @@ st_write(sf_nc_county,
 ```
 
 For use within R, it is often convenient to save spatial data in `.rds` format using the `saveRDS()` function.
-This format is compact and efficient, making it ideal for storing intermediate results. 
+This format is compact and efficient, making it ideal for storing intermediate results.
 Keep in mind, however, that `.rds` files are not compatible with other GIS software, so you’ll need to convert them to `.shp` or `.gpkg` for others using common GIS platforms.
 
 ```{r, eval = FALSE}
@@ -96,15 +100,19 @@ sf_nc_county <- readRDS(file = "data/sf_nc_county.rds")
 
 ### Point
 
-**Points** represent discrete locations that have no area or length, such as the location of a weather station, a tree, or a city. Each point has a pair of coordinates (latitude and longitude or x and y) that indicate its position.
+**Points** represent discrete locations that have no area or length, such as the location of a weather station, a tree, or a city.
+Each point has a pair of coordinates (latitude and longitude or x and y) that indicate its position.
 
-The sample data used in Chapter \@ref(coordinate-systems) is an example of a point vector layer. Let's take a closer look at this dataset (saved as `data/sf_finsync_nc.rds` in the shared repository).
+The sample data used in Chapter \@ref(coordinate-systems) is an example of a point vector layer.
+Let's take a closer look at this dataset (saved as `data/sf_finsync_nc.rds` in the shared repository).
 
 ```{r}
 (sf_site <- readRDS("data/sf_finsync_nc.rds"))
 ```
 
-If you examine the geometry column, you'll see that it contains pairs of latitude and longitude values with the notation `<POINT [°]>`, which specify the location of each site. Using this geographic information, we visualized the survey sites on a map in Chapter \@ref(getting-started). We can map this data with `mapview::mapview()` function:
+If you examine the geometry column, you'll see that it contains pairs of latitude and longitude values with the notation `<POINT [°]>`, which specify the location of each site.
+Using this geographic information, we visualized the survey sites on a map in Chapter \@ref(getting-started).
+We can map this data with `mapview::mapview()` function:
 
 ```{r}
 mapview(sf_site,
@@ -114,17 +122,19 @@ mapview(sf_site,
 
 ### Line
 
-**Lines** (also called **polylines**) represent linear features such as roads, rivers, or trails. A line consists of a sequence of connected points and may include curves or bends.
+**Lines** (also called **polylines**) represent linear features such as roads, rivers, or trails.
+A line consists of a sequence of connected points and may include curves or bends.
 Lines have length, but no area.
 
 Stream lines are an example of line geometries.
-We will use a sample dataset stored in `data/sf_stream.rds`, which illustrate stream networks within Guilford county, NC. You can load and inspect it in R as follows:
+We will use a sample dataset stored in `data/sf_stream.rds`, which illustrate stream networks within Guilford county, NC.
+You can load and inspect it in R as follows:
 
 ```{r}
 (sf_str <- readRDS("data/sf_stream.rds"))
 ```
 
-In contrast to the point vector layer introduced earlier, this dataset's geometry column contains the notation `LINESTRING`, indicating that the features represent linear geometries—specifically, stream segments. 
+In contrast to the point vector layer introduced earlier, this dataset's geometry column contains the notation `LINESTRING`, indicating that the features represent linear geometries—specifically, stream segments.
 Let’s visualize this data to better understand its structure:
 
 ```{r}
@@ -135,15 +145,17 @@ mapview(sf_str,
 
 ### Polygon
 
-**Polygons** represent areas such as lakes, parks, or country boundaries. A polygon is formed by a closed sequence of lines that define its perimeter, allowing it to enclose a space and have both area and shape. 
+**Polygons** represent areas such as lakes, parks, or country boundaries.
+A polygon is formed by a closed sequence of lines that define its perimeter, allowing it to enclose a space and have both area and shape.
 As an example, we’ll use county-level polygon data from North Carolina:
 
 ```{r}
 (sf_nc_county <- readRDS("data/sf_nc_county.rds"))
 ```
 
-In the geometry column, you’ll notice the notation `MULTIPOLYGON`, which indicates that each feature consists of one or more connected polygons. 
-These are classified as polygon vectors in GIS and are commonly used to represent areas with defined boundaries. Let’s visualize these polygons as well:
+In the geometry column, you’ll notice the notation `MULTIPOLYGON`, which indicates that each feature consists of one or more connected polygons.
+These are classified as polygon vectors in GIS and are commonly used to represent areas with defined boundaries.
+Let’s visualize these polygons as well:
 
 ```{r}
 mapview(sf_nc_county,
@@ -170,7 +182,8 @@ ggplot() +
   geom_sf(data = sf_str)
 ```
 
-Finally, we add the point layer to the map, which marks the survey sites. This completes the map by showing all three vector types together:
+Finally, we add the point layer to the map, which marks the survey sites.
+This completes the map by showing all three vector types together:
 
 ```{r}
 ggplot() +
@@ -183,13 +196,14 @@ ggplot() +
 
 ### Spatial join
 
-While the map we created earlier provides a good overview, it may appear odd because the stream network is only available for Guilford County, yet the other layers (such as survey sites and county boundaries) span the entire state. 
+While the map we created earlier provides a good overview, it may appear odd because the stream network is only available for Guilford County, yet the other layers (such as survey sites and county boundaries) span the entire state.
 To better align the spatial representation, we might want to focus on Guilford County across all layers.
 
 <!-- One of the major benefits of using R GIS analysis is that spatial features can be manipulated just like regular data frames.  -->
+
 <!-- This kind of spatial subsetting is also possible in platforms like ArcGIS or QGIS, but often involves tedious click-and-save workflows, which I personally try to avoid. -->
 
-To narrow down the survey sites to only those that fall within Guilford County, we can use the `sf::st_join()` function from the `sf` package. 
+To narrow down the survey sites to only those that fall within Guilford County, we can use the `sf::st_join()` function from the `sf` package.
 This function performs a spatial join, associating attributes from one layer (e.g., counties) to another (e.g., point locations) based on their geographic overlap.
 
 Here, we overlay `sf_site` (survey sites) with `sf_nc_county` (county polygons) to attach county information to each point:
@@ -252,12 +266,12 @@ ggplot() +
 
 In vector data analysis, we can perform various geometric operations such as calculating the length of polylines or the area of polygons.
 However, it’s important to ensure that the data is using an appropriate CRS because geometric computations assume that features are laid out in a flat, two-dimensional space -- **geodetic CRS should not be used**.
-In most cases, it is recommended to transform the data to a projected CRS that is suitable for the region of interest. 
+In most cases, it is recommended to transform the data to a projected CRS that is suitable for the region of interest.
 
-#### Length{.unnumbered}
+#### Length {.unnumbered}
 
 To calculate the length of polylines, we can use the `sf::st_length()` function.
-Before doing so, it's important to transform the data to a projected CRS. 
+Before doing so, it's important to transform the data to a projected CRS.
 In this case, we'll use `WGS 84 / UTM Zone 17N (EPSG:32617)`, which is appropriate for our sample data (North Carolina, USA).
 We can use `st_transform()` to reproject the spatial object `sf_str` to the UTM Zone 17N coordinate reference system (`EPSG:32617`).
 
@@ -274,8 +288,8 @@ v_str_l <- st_length(sf_str_proj)
 head(v_str_l)
 ```
 
-The object `v_str_l` contains the length of each stream segment, in the same order as the features in `sf_str_proj`. 
-We can attach them directly to the spatial object as a new column using `dplyr::mutate()`. 
+The object `v_str_l` contains the length of each stream segment, in the same order as the features in `sf_str_proj`.
+We can attach them directly to the spatial object as a new column using `dplyr::mutate()`.
 This allows us to retain both the geometry and the calculated lengths within a single data frame structure.
 
 ```{r}
@@ -302,8 +316,7 @@ sf_str_w_len <- sf_str %>%
 #   mutate(length = v_str_l)                      
 ```
 
-
-#### Area{.unnumbered}
+#### Area {.unnumbered}
 
 The area of polygons can be calculated in a similar manner using the `sf::st_area()` function.
 Again, do not forget CRS transformation before performing geometric calculations.
@@ -321,7 +334,7 @@ v_area <- st_area(sf_nc_county)
 head(v_area)
 ```
 
-As we saw in the example of stream polylines, the object `v_area` contains the area of each county. 
+As we saw in the example of stream polylines, the object `v_area` contains the area of each county.
 Let's attach them directly to the spatial object as a new column using `dplyr::mutate()` again.
 
 ```{r}

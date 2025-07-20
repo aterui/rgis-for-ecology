@@ -86,7 +86,7 @@ This helps us understand the geographic coverage before cropping.
 ext(spr_prec)
 ```
 
-This layer covers the entire US, so it's a pretty big rater (check with `geom_spatraster()`).
+This layer covers the entire US, so it's a pretty big raster (check with `geom_spatraster()`).
 
 To crop a raster, we provide the bounding box of the area we want to retain. 
 In the example below, we keep the area bounded by longitudes -80 to -75 and latitudes 34 to 37.
@@ -99,7 +99,8 @@ spr_prec_crop <- crop(x = spr_prec,
                       y = c(-80, -75, 34, 37))
 ```
 
-Since it's a little unclear where this raster spans geographically, we load a vector dataset of North Carolina counties.
+The selected area partially covers North Carolina.
+However, since it's a little difficult to imagine where this raster spans geographically, we load a vector dataset of North Carolina counties.
 We can then overlay both the raster and vector data to get a better sense of geographic coverage.
 
 ```{r}
@@ -132,9 +133,83 @@ ggplot() +
           alpha = 0.25) ## alpha = 0.25 makes the polygon layer transparent
 ```
 
-Sweet.
-
 ## Merge
+
+The `merge()` function performs the opposite of `crop()`: it combines multiple raster layers into a single, unified raster. 
+This operation is essential when working with large geographic datasets that span multiple tiles. 
+For example, if you need to calculate summary statistics within a polygon boundary that crosses several raster layers, those rasters must first be merged to ensure the statistics are computed accurately across the entire area of interest.
+
+### Merge two tiles{.unnumbered}
+
+To try out the `merge()` function, we’ll use a set of precipitation raster tiles, each representing one quarter of North Carolina.
+
+```{r}
+spr_nw <- rast("data/spr_prec_ncnw.tif") # Northwest NC
+spr_ne <- rast("data/spr_prec_ncne.tif") # Northeast NC
+spr_sw <- rast("data/spr_prec_ncsw.tif") # Southwest NC
+spr_se <- rast("data/spr_prec_ncse.tif") # Southeast NC
+```
+
+As before, you can use `geom_spatraster()` for visual check:
+
+```{r}
+ggplot() +
+  geom_spatraster(data = spr_nw) +
+  geom_sf(data = sf_nc_county,
+          alpha = 0.25)
+```
+
+Check the other layers (`spr_ne`, `spr_sw`, `spr_se`) -- each one covers a different quarter of North Carolina.
+
+While these individual tiles are useful for, e.g., county-level analysis, they fall short if you want to perform a statewide analysis. 
+Merging two tiles into a single raster is straightforward using the `merge()` function.
+
+```{r}
+spr_n <- merge(spr_nw, spr_ne)
+```
+
+The `spr_n` layer is a combination of the northern tiles and should now cover the northern half of the state.
+
+```{r}
+ggplot() +
+  geom_spatraster(data = spr_n) +
+  geom_sf(data = sf_nc_county,
+          alpha = 0.25)
+```
+
+### Merge more than two tiles{.unnumbered}
+
+If we wish to merge more than two raster tiles at once, it's often more efficient to use a SpatRaster Collection. This allows us to organize multiple SpatRaster objects into a single collection that can be handled by functions like merge() more easily.
+
+First, we gather the individual tiles into a list:
+
+```{r}
+list_spr <- list(spr_nw,
+                 spr_ne,
+                 spr_sw,
+                 spr_se)
+```
+
+Then, we convert this list into a `SpatRasterCollection` using the `terra::sprc()` function:
+
+```{r}
+spr_col <- sprc(list_spr)
+```
+
+Now that we have a raster collection, we can merge all tiles into a single, unified raster layer:
+
+```{r}
+spr_merge <- merge(spr_col)
+```
+
+This final merged raster covers the entire extent of North Carolina.
+
+```{r}
+ggplot() +
+  geom_spatraster(data = spr_merge) +
+  geom_sf(data = sf_nc_county,
+          alpha = 0.25)
+```
 
 ## Stack
 

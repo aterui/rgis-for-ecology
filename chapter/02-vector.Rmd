@@ -45,7 +45,7 @@ In the context of R, even better, vector data can also be saved using the native
 This format is not cross-platform compatible with other GIS software, but it offers advantages within R: it is more **memory efficient** and often results in smaller file sizes.
 For these reasons, this book primarily uses the `.rds` format for storing vector data, unless compatibility with external software requires otherwise.
 
-### Read/Export vector Data
+### Read/Export vector data
 
 Since it is still common to share data in ESRI Shapefile format, we'll start by loading a `.shp` file into R.
 Then, we'll save the imported data in `.rds` format to simplify later steps in our workflow.

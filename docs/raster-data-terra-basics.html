@@ -54,6 +54,7 @@
 <li><a class="" href="coordinate-systems.html"><span class="header-section-number">2</span> Coordinate Systems</a></li>
 <li><a class="" href="vector-data-sf-basics.html"><span class="header-section-number">3</span> Vector Data (sf basics)</a></li>
 <li><a class="active" href="raster-data-terra-basics.html"><span class="header-section-number">4</span> Raster Data (terra basics)</a></li>
+<li><a class="" href="vector-raster-interactions.html"><span class="header-section-number">5</span> Vector-Raster Interactions</a></li>
 </ul>
 
         <div class="book-extra">
@@ -65,8 +66,9 @@
 <h1>
 <span class="header-section-number">4</span> Raster Data (<code>terra</code> basics)<a class="anchor" aria-label="anchor" href="#raster-data-terra-basics"><i class="fas fa-link"></i></a>
 </h1>
-<p>In this chapter, we will work with the following packages. Before starting any exercises, make sure to run the following code.</p>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<p>In this chapter, we will work with the following packages.
+Before starting any exercises, make sure to run the following code.</p>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/trinker/pacman">pacman</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"packman"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">pacman</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pacman/man/p_load.html">p_load</a></span><span class="op">(</span><span class="va">tidyverse</span>,</span>
@@ -84,7 +86,7 @@ Raster datasets are often used in environmental modeling, remote sensing, and cl
 It allows users to read, write, manipulate, and analyze raster datasets of various formats (e.g., GeoTIFF, NetCDF) and supports integration with vector data through the <code>sf</code> and <code>sp</code> packages.</p>
 <div id="data-format-1" class="section level3" number="4.1.1">
 <h3>
-<span class="header-section-number">4.1.1</span> Data Format<a class="anchor" aria-label="anchor" href="#data-format-1"><i class="fas fa-link"></i></a>
+<span class="header-section-number">4.1.1</span> Data format<a class="anchor" aria-label="anchor" href="#data-format-1"><i class="fas fa-link"></i></a>
 </h3>
 <p>A <strong>GeoTIFF</strong> is a commonly used raster file format in GIS that stores image data along with georeferencing information.
 That is, data that tells the software where the image belongs on the Earth’s surface.
@@ -92,11 +94,11 @@ Unlike a regular TIFF image, a GeoTIFF includes embedded metadata such as CRS, m
 </div>
 <div id="readexport-raster-data" class="section level3" number="4.1.2">
 <h3>
-<span class="header-section-number">4.1.2</span> Read/Export Raster Data<a class="anchor" aria-label="anchor" href="#readexport-raster-data"><i class="fas fa-link"></i></a>
+<span class="header-section-number">4.1.2</span> Read/Export raster data<a class="anchor" aria-label="anchor" href="#readexport-raster-data"><i class="fas fa-link"></i></a>
 </h3>
 <p>In the context of using the <code>terra</code> package in R, GeoTIFFs (<code>.tif</code>) are a standard input and output format for raster analysis.
 For example, you can load a GeoTIFF containing data using <code><a href="https://rspatial.github.io/terra/reference/rast.html">terra::rast()</a></code>, after which you may perform spatial operations such as cropping or masking.</p>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">spr_ex</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_example.tif"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## class       : SpatRaster 
 ## dimensions  : 90, 95, 1  (nrow, ncol, nlyr)
@@ -114,7 +116,7 @@ The spatial extent of the raster is defined by the minimum and maximum coordinat
 The CRS is WGS 84 (line <code>coord. ref.</code>), which uses geographic coordinates (longitude and latitude).
 The raster contains elevation data (line <code>name:</code>), with values ranging from 141 to 547 (lines <code>min value:</code> and <code>max value:</code>) in meters.</p>
 <p>The raster object in R can be exported using <code><a href="https://rspatial.github.io/terra/reference/writeRaster.html">terra::writeRaster()</a></code>:</p>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># overwrite = TRUE enables overwriting</span></span>
 <span><span class="fu">writeRaster</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_ex</span>, </span>
 <span>            filename <span class="op">=</span> <span class="st">"data/spr_elev.tif"</span>,</span>
@@ -131,10 +133,10 @@ This means that typical <code>ggplot2</code> functions like <code><a href="https
 <p>Fortunately, the <code>tidyterra</code> package extends <code>ggplot2</code> by providing functions designed specifically for raster visualization.
 Here, we can use <code><a href="https://dieghernan.github.io/tidyterra/reference/geom_spatraster.html">tidyterra::geom_spatraster()</a></code> to display raster data in a <code>ggplot2</code>-friendly format.
 In the following example, we’ll use <code>geom_spatraster()</code> to visualize the raster file <code>spr_ex</code> we previously loaded into R.</p>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_ex</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-45-1.png" width="672"></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-46-1.png" width="672"></div>
 </div>
 </div>
 <div id="crop" class="section level2" number="4.2">
@@ -143,9 +145,13 @@ In the following example, we’ll use <code>geom_spatraster()</code> to visualiz
 </h2>
 <p>The <code>crop()</code> function is a useful tool for trimming a raster layer down to a defined extent.
 This is particularly helpful when working with large raster files, which can be slow to process and visualize.</p>
+<div id="given-extent" class="section level3" number="4.2.1">
+<h3>
+<span class="header-section-number">4.2.1</span> Given extent<a class="anchor" aria-label="anchor" href="#given-extent"><i class="fas fa-link"></i></a>
+</h3>
 <p>To see how cropping works, let’s start by loading a precipitation dataset.
 This raster is a product from CHELSA (Climatologies at High resolution for the Earth’s Land Surface Areas):</p>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">spr_prec</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_prec_us.tif"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## class       : SpatRaster 
 ## dimensions  : 3000, 6972, 1  (nrow, ncol, nlyr)
@@ -158,21 +164,22 @@ This raster is a product from CHELSA (Climatologies at High resolution for the E
 ## max value   :        5765.7</code></pre>
 <p>To inspect the spatial extent of the raster, we can use the <code><a href="https://rspatial.github.io/terra/reference/ext.html">terra::ext()</a></code> function from the <code>terra</code> package.
 This helps us understand the geographic coverage before cropping.</p>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ext</span><span class="op">(</span><span class="va">spr_prec</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## SpatExtent : -125.00013910885, -66.90013934125, 24.49986065315, 49.49986055315 (xmin, xmax, ymin, ymax)</code></pre>
-<p>This layer covers the entire US, so it’s a pretty big rater (check with <code>geom_spatraster()</code>).</p>
+<p>This layer covers the entire US, so it’s a pretty big raster (check with <code>geom_spatraster()</code>).</p>
 <p>To crop a raster, we provide the bounding box of the area we want to retain.
 In the example below, we keep the area bounded by longitudes -80 to -75 and latitudes 34 to 37.</p>
-<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## crop to:</span></span>
 <span><span class="co">## longitude range: -80 to -75</span></span>
 <span><span class="co">## latitude range: 34 to 37</span></span>
 <span><span class="va">spr_prec_crop</span> <span class="op">&lt;-</span> <span class="fu">crop</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec</span>,</span>
 <span>                      y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">80</span>, <span class="op">-</span><span class="fl">75</span>, <span class="fl">34</span>, <span class="fl">37</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Since it’s a little unclear where this raster spans geographically, we load a vector dataset of North Carolina counties.
+<p>The selected area partially covers North Carolina.
+However, since it’s a little difficult to imagine where this raster spans geographically, we load a vector dataset of North Carolina counties.
 We can then overlay both the raster and vector data to get a better sense of geographic coverage.</p>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## load county vector </span></span>
 <span><span class="va">sf_nc_county</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/sf_nc_county.rds"</span><span class="op">)</span></span>
 <span></span>
@@ -180,63 +187,265 @@ We can then overlay both the raster and vector data to get a better sense of geo
 <span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_prec_crop</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
 <span>          alpha <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> <span class="co">## alpha = 0.25 makes the polygon layer transparent</span></span></code></pre></div>
-<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-49-1.png" width="672"></div>
-<p>The resulting plot reveals that the raster and vector extents do not perfectly align.
-In later analyses, it’s common to work with raster and vector data together, so it’s helpful to know how to crop a raster layer using the spatial extent of a vector object.</p>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-50-1.png" width="672"></div>
+<p>The resulting plot reveals that the raster and vector extents do not perfectly align.</p>
+</div>
+<div id="vector-extent" class="section level3" number="4.2.2">
+<h3>
+<span class="header-section-number">4.2.2</span> Vector extent<a class="anchor" aria-label="anchor" href="#vector-extent"><i class="fas fa-link"></i></a>
+</h3>
+<p>In later analyses, it’s common to work with raster and vector data together, so it’s helpful to know how to crop a raster layer using the spatial extent of a vector object.</p>
 <p>In the following example, we crop the raster using the extent of the <code>sf_nc_county</code> object, which ensures that the spatial extents of the two datasets match.</p>
-<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spr_prec_nc</span> <span class="op">&lt;-</span> <span class="fu">crop</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec</span>,</span>
 <span>                    y <span class="op">=</span> <span class="va">sf_nc_county</span><span class="op">)</span></span></code></pre></div>
 <p>Let’s visualize the cropped raster and vector data together again to confirm that they now align correctly.</p>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_prec_nc</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
 <span>          alpha <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> <span class="co">## alpha = 0.25 makes the polygon layer transparent</span></span></code></pre></div>
-<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-51-1.png" width="672"></div>
-<p>Sweet.</p>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-52-1.png" width="672"></div>
+</div>
 </div>
 <div id="merge" class="section level2" number="4.3">
 <h2>
 <span class="header-section-number">4.3</span> Merge<a class="anchor" aria-label="anchor" href="#merge"><i class="fas fa-link"></i></a>
 </h2>
+<p>The <code><a href="https://rdrr.io/r/base/merge.html">merge()</a></code> function performs the opposite of <code>crop()</code>: it combines multiple raster layers into a single, unified raster.
+This operation is essential when working with large geographic datasets that span multiple tiles.
+For example, if you need to calculate summary statistics within a polygon boundary that crosses several raster layers, those rasters must first be merged to ensure the statistics are computed accurately across the entire area of interest.</p>
+<div id="two-tiles" class="section level3" number="4.3.1">
+<h3>
+<span class="header-section-number">4.3.1</span> Two tiles<a class="anchor" aria-label="anchor" href="#two-tiles"><i class="fas fa-link"></i></a>
+</h3>
+<p>To try out the <code><a href="https://rdrr.io/r/base/merge.html">merge()</a></code> function, we’ll use a set of precipitation raster tiles, each representing one quarter of North Carolina.</p>
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spr_nw</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_prec_ncnw.tif"</span><span class="op">)</span> <span class="co"># Northwest NC</span></span>
+<span><span class="va">spr_ne</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_prec_ncne.tif"</span><span class="op">)</span> <span class="co"># Northeast NC</span></span>
+<span><span class="va">spr_sw</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_prec_ncsw.tif"</span><span class="op">)</span> <span class="co"># Southwest NC</span></span>
+<span><span class="va">spr_se</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_prec_ncse.tif"</span><span class="op">)</span> <span class="co"># Southeast NC</span></span></code></pre></div>
+<p>As before, you can use <code>geom_spatraster()</code> for visual check:</p>
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_nw</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
+<span>          alpha <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-54-1.png" width="672"></div>
+<p>Check the other layers (<code>spr_ne</code>, <code>spr_sw</code>, <code>spr_se</code>) – each one covers a different quarter of North Carolina.</p>
+<p>While these individual tiles are useful for, e.g., county-level analysis, they fall short if you want to perform a statewide analysis.
+Merging two tiles into a single raster is straightforward using the <code><a href="https://rdrr.io/r/base/merge.html">merge()</a></code> function.</p>
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spr_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span><span class="va">spr_nw</span>, <span class="va">spr_ne</span><span class="op">)</span></span></code></pre></div>
+<p>The <code>spr_n</code> layer is a combination of the northern tiles and should now cover the northern half of the state.</p>
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_n</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
+<span>          alpha <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-56-1.png" width="672"></div>
+</div>
+<div id="more-than-two-tiles" class="section level3" number="4.3.2">
+<h3>
+<span class="header-section-number">4.3.2</span> More than two tiles<a class="anchor" aria-label="anchor" href="#more-than-two-tiles"><i class="fas fa-link"></i></a>
+</h3>
+<p>If we wish to merge more than two raster tiles at once, it’s often more efficient to use a SpatRaster Collection.
+This allows us to organize multiple <code>SpatRaster</code> objects into a single collection that can be handled by functions like <code><a href="https://rdrr.io/r/base/merge.html">merge()</a></code> more easily.</p>
+<p>First, we gather the individual tiles into a list:</p>
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">list_spr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">spr_nw</span>,</span>
+<span>                 <span class="va">spr_ne</span>,</span>
+<span>                 <span class="va">spr_sw</span>,</span>
+<span>                 <span class="va">spr_se</span><span class="op">)</span></span></code></pre></div>
+<p>Then, we convert this list into a <code>SpatRasterCollection</code> using the <code><a href="https://rspatial.github.io/terra/reference/sprc.html">terra::sprc()</a></code> function:</p>
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spr_col</span> <span class="op">&lt;-</span> <span class="fu">sprc</span><span class="op">(</span><span class="va">list_spr</span><span class="op">)</span></span></code></pre></div>
+<p>Now that we have a raster collection, we can merge all tiles into a single, unified raster layer:</p>
+<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spr_merge</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span><span class="va">spr_col</span><span class="op">)</span></span></code></pre></div>
+<p>This final merged raster covers the entire extent of North Carolina.</p>
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_merge</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
+<span>          alpha <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-60-1.png" width="672"></div>
+</div>
 </div>
 <div id="stack" class="section level2" number="4.4">
 <h2>
 <span class="header-section-number">4.4</span> Stack<a class="anchor" aria-label="anchor" href="#stack"><i class="fas fa-link"></i></a>
 </h2>
+<p>If we have multiple raster layers with the same extent and resolution, we can “stack” them into a single object for joint analysis.
+A stacked raster is particularly useful when working with multiple environmental variables simultaneously—such as temperature, precipitation, and elevation.
+This approach allows us to perform cell-by-cell operations across layers.
+See Chapter XX for more details.
+<a href="vector-raster-interactions.html#vector-raster-interactions">5</a>.</p>
+<p>Here, we’ll work with precipitation and temperature layers from CHELSA to create a stacked raster.
+Since these layers share the same extent and resolution, they represent an ideal case for stacking.
+Let’s begin by loading the layers into R.</p>
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spr_prec_nc</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_prec_nc.tif"</span><span class="op">)</span></span>
+<span><span class="va">spr_tmp_nc</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_tmp_nc.tif"</span><span class="op">)</span></span></code></pre></div>
+<p>Each raster object currently contains a single layer with its own data.
+You can print the object to inspect its contents—be sure to check both <code>spr_prec_nc</code> and <code>spr_tmp_nc</code> as examples.</p>
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># print precipitation layer - do the same for spr_tmp_nc as well!</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">spr_prec_nc</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## class       : SpatRaster 
+## dimensions  : 325, 1064, 1  (nrow, ncol, nlyr)
+## resolution  : 0.008333333, 0.008333333  (x, y)
+## extent      : -84.32514, -75.45847, 33.88319, 36.59153  (xmin, xmax, ymin, ymax)
+## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+## source      : spr_prec_nc.tif 
+## name        : precipitation 
+## min value   :         975.5 
+## max value   :        2668.2</code></pre>
+<p>Stacking these raster layers is simple - we can use the <code><a href="https://rdrr.io/r/base/c.html">c()</a></code> function - just like creating a vector.</p>
+<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">spr_pt_nc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">spr_prec_nc</span>,</span>
+<span>                <span class="va">spr_tmp_nc</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## class       : SpatRaster 
+## dimensions  : 325, 1064, 2  (nrow, ncol, nlyr)
+## resolution  : 0.008333333, 0.008333333  (x, y)
+## extent      : -84.32514, -75.45847, 33.88319, 36.59153  (xmin, xmax, ymin, ymax)
+## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+## sources     : spr_prec_nc.tif  
+##               spr_tmp_nc.tif  
+## names       : precipitation, temperature 
+## min values  :         975.5,        5.15 
+## max values  :        2668.2,       21.15</code></pre>
+<p>This output shows a stacked raster object of class <code>SpatRaster</code> that contains two layers—as indicated by <code>nlyr: 2</code>.
+Each layer corresponds to a different environmental variable: precipitation and temperature, as listed under the <code>names</code> field.</p>
+<ul>
+<li><p>The raster has a consistent spatial structure, with 325 rows and 1064 columns, and a resolution of approximately 0.0083 degrees in both directions.</p></li>
+<li><p>Both layers share the same extent and coordinate reference system (<code>EPSG:4326</code>), which is a requirement for stacking.</p></li>
+<li><p>Under <code>sources</code>, we can see the original file names (<code>spr_prec_nc.tif</code> and <code>spr_tmp_nc.tif</code>) that were combined.</p></li>
+<li><p>The <code>min values</code> and <code>max values</code> show the data range for each variable.</p></li>
+</ul>
+<p>Because these layers are perfectly aligned, stacking them allows for cell-by-cell analysis across variables, which is useful for modeling, classification, or other multivariate environmental analyses.</p>
+<p>We can access each layer separately using <code>$</code> operator – this returns the same output with <code>spr_prec_nc</code>.</p>
+<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># precipitation</span></span>
+<span><span class="va">spr_pt_nc</span><span class="op">$</span><span class="va">precipitation</span></span></code></pre></div>
+<pre><code>## class       : SpatRaster 
+## dimensions  : 325, 1064, 1  (nrow, ncol, nlyr)
+## resolution  : 0.008333333, 0.008333333  (x, y)
+## extent      : -84.32514, -75.45847, 33.88319, 36.59153  (xmin, xmax, ymin, ymax)
+## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+## source      : spr_prec_nc.tif 
+## name        : precipitation 
+## min value   :         975.5 
+## max value   :        2668.2</code></pre>
 </div>
-<div id="projection" class="section level2" number="4.5">
+<div id="reprojection" class="section level2" number="4.5">
 <h2>
-<span class="header-section-number">4.5</span> Projection<a class="anchor" aria-label="anchor" href="#projection"><i class="fas fa-link"></i></a>
+<span class="header-section-number">4.5</span> Reprojection<a class="anchor" aria-label="anchor" href="#reprojection"><i class="fas fa-link"></i></a>
 </h2>
+<p>In raster data, we use <code><a href="https://rspatial.github.io/terra/reference/project.html">terra::project()</a></code> to change the CRS.
+To try this out, let’s use the precipitation data for North Carolina.
+This layer is originally defined in a geodetic CRS, WGS84, as specified in the source data (see line <code>coord. ref.</code>).</p>
+<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">spr_prec_nc</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## class       : SpatRaster 
+## dimensions  : 325, 1064, 1  (nrow, ncol, nlyr)
+## resolution  : 0.008333333, 0.008333333  (x, y)
+## extent      : -84.32514, -75.45847, 33.88319, 36.59153  (xmin, xmax, ymin, ymax)
+## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+## source      : spr_prec_nc.tif 
+## name        : precipitation 
+## min value   :         975.5 
+## max value   :        2668.2</code></pre>
+<p>We can reproject it to a projected CRS using the <code>project()</code> function.
+Note that, unlike <code><a href="https://r-spatial.github.io/sf/reference/st_transform.html">sf::st_transform()</a></code>, <code><a href="https://rspatial.github.io/terra/reference/project.html">terra::project()</a></code> requires the EPSG code to be supplied in the format <code>"EPSG:XXXX"</code>.</p>
+<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">spr_prec_nc_proj</span> <span class="op">&lt;-</span> <span class="fu">project</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec_nc</span>,</span>
+<span>                             y <span class="op">=</span> <span class="st">"EPSG:32617"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## class       : SpatRaster 
+## dimensions  : 407, 1060, 1  (nrow, ncol, nlyr)
+## resolution  : 774.027, 774.027  (x, y)
+## extent      : 192445.1, 1012914, 3748853, 4063882  (xmin, xmax, ymin, ymax)
+## coord. ref. : WGS 84 / UTM zone 17N (EPSG:32617) 
+## source(s)   : memory
+## name        : precipitation 
+## min value   :      976.9659 
+## max value   :     2668.0034</code></pre>
+<p>The <code>coord. ref.</code> now says <code>WGS 84 / UTM zone 17N (EPSG:32617)</code></p>
+<div id="resampling" class="section level3" number="4.5.1">
+<h3>
+<span class="header-section-number">4.5.1</span> Resampling<a class="anchor" aria-label="anchor" href="#resampling"><i class="fas fa-link"></i></a>
+</h3>
+<p>While reprojection in raster data may seem straightforward, it involves important details; particularly the resampling of raster values.
+When a raster is reprojected, its grid cells are re-aligned to fit the new CRS.
+However, the new grid typically does not align perfectly with the original one.
+As a result, the new cell centers may fall between the original cell locations, creating overlaps or gaps that require estimation.</p>
+<p>This estimation process is known as <strong>resampling</strong>, and it determines how values from the original raster are reassigned to the new grid.
+For example, we might assign each new cell the value of the nearest original cell (nearest-neighbor method), or compute a weighted average from surrounding cells (bilinear or cubic interpolation).
+The choice of resampling method depends on the type of data and the desired balance between accuracy and efficiency.
+The following list provides key methods for resampling:</p>
+<ul>
+<li><p><strong>Nearest neighbor</strong> is the simplest resampling method.
+It assigns each new cell the value of the closest cell in the original raster without any averaging.
+This method is best used for categorical data (e.g., land cover types or habitat classes) where preserving exact values is essential.
+<strong>Should not be used for for continuous data.</strong></p></li>
+<li><p><strong>Bilinear interpolation</strong> estimates each new cell value by taking a weighted average of the four nearest original cells.
+It produces smoother results than nearest neighbor and is well-suited for continuous data such as temperature, elevation, or precipitation.
+<strong>Should not be used for categorical data.</strong></p></li>
+<li><p><strong>Cubic interpolation</strong> uses 16 surrounding cells to calculate a smoother, more refined estimate of new values.
+It’s appropriate for continuous data when visual smoothness or gradient preservation is important, such as in elevation models or remote sensing imagery.
+While more accurate for smooth surfaces, it is slower and may oversmooth sharp transitions.</p></li>
+</ul>
+<p>By default, <code><a href="https://rspatial.github.io/terra/reference/project.html">terra::project()</a></code> applies the nearest neighbor method (<code>method = "near"</code>) when the input raster contains discrete data, and uses bilinear interpolation (<code>method = "bilinear"</code>) for continuous data.
+More options are available, and you can specify them in the method argument of the function (see <code><a href="https://rspatial.github.io/terra/reference/project.html">?terra::project</a></code> for more details).</p>
+</div>
+<div id="non-reversible" class="section level3" number="4.5.2">
+<h3>
+<span class="header-section-number">4.5.2</span> Non-reversible<a class="anchor" aria-label="anchor" href="#non-reversible"><i class="fas fa-link"></i></a>
+</h3>
+<p>We must be aware of key differences from vector data regarding reprojection.
+In vector data, coordinate transformations are generally reversible, meaning that when you reproject a vector layer to a new CRS and then transform it back to the original CRS, the geometries will retain their original coordinates with high precision.
+This is possible because vector data (points, lines, polygons) are defined by discrete coordinate values, which can be precisely transformed using mathematical rules without interpolation.</p>
+<p>In contrast, raster reprojection with <code><a href="https://rspatial.github.io/terra/reference/project.html">terra::project()</a></code> is not reversible.
+This is because raster data consist of a grid of cells, and when reprojecting, the cell values must be resampled to fit a new grid layout in the target CRS.
+This involves interpolation (e.g., bilinear or nearest-neighbor methods), which can introduce small changes or smoothing in the data.
+As a result, reprojecting a raster to a new CRS and then back to the original CRS will not perfectly recover the original values or alignment.</p>
 
 </div>
 </div>
-
-
-
-
-
-
+</div>
   <div class="chapter-nav">
 <div class="prev"><a href="vector-data-sf-basics.html"><span class="header-section-number">3</span> Vector Data (sf basics)</a></div>
-<div class="empty"></div>
+<div class="next"><a href="vector-raster-interactions.html"><span class="header-section-number">5</span> Vector-Raster Interactions</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
 <li><a class="nav-link" href="#raster-data-terra-basics"><span class="header-section-number">4</span> Raster Data (terra basics)</a></li>
 <li>
 <a class="nav-link" href="#raster-data-in-gis"><span class="header-section-number">4.1</span> Raster Data in GIS</a><ul class="nav navbar-nav">
-<li><a class="nav-link" href="#data-format-1"><span class="header-section-number">4.1.1</span> Data Format</a></li>
-<li><a class="nav-link" href="#readexport-raster-data"><span class="header-section-number">4.1.2</span> Read/Export Raster Data</a></li>
+<li><a class="nav-link" href="#data-format-1"><span class="header-section-number">4.1.1</span> Data format</a></li>
+<li><a class="nav-link" href="#readexport-raster-data"><span class="header-section-number">4.1.2</span> Read/Export raster data</a></li>
 <li><a class="nav-link" href="#mapping-1"><span class="header-section-number">4.1.3</span> Mapping</a></li>
 </ul>
 </li>
-<li><a class="nav-link" href="#crop"><span class="header-section-number">4.2</span> Crop</a></li>
-<li><a class="nav-link" href="#merge"><span class="header-section-number">4.3</span> Merge</a></li>
+<li>
+<a class="nav-link" href="#crop"><span class="header-section-number">4.2</span> Crop</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#given-extent"><span class="header-section-number">4.2.1</span> Given extent</a></li>
+<li><a class="nav-link" href="#vector-extent"><span class="header-section-number">4.2.2</span> Vector extent</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#merge"><span class="header-section-number">4.3</span> Merge</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#two-tiles"><span class="header-section-number">4.3.1</span> Two tiles</a></li>
+<li><a class="nav-link" href="#more-than-two-tiles"><span class="header-section-number">4.3.2</span> More than two tiles</a></li>
+</ul>
+</li>
 <li><a class="nav-link" href="#stack"><span class="header-section-number">4.4</span> Stack</a></li>
-<li><a class="nav-link" href="#projection"><span class="header-section-number">4.5</span> Projection</a></li>
+<li>
+<a class="nav-link" href="#reprojection"><span class="header-section-number">4.5</span> Reprojection</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#resampling"><span class="header-section-number">4.5.1</span> Resampling</a></li>
+<li><a class="nav-link" href="#non-reversible"><span class="header-section-number">4.5.2</span> Non-reversible</a></li>
+</ul>
+</li>
 </ul>
 
       <div class="book-extra">
@@ -253,7 +462,7 @@ In later analyses, it’s common to work with raster and vector data together, s
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>R-GIS for Ecology</strong>" was written by Akira Terui. It was last built on 2025-07-19.</p>
+    <p>"<strong>R-GIS for Ecology</strong>" was written by Akira Terui. It was last built on 2025-07-23.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

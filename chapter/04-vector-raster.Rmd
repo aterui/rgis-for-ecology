@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: sentence
----
-
 # Vector-Raster Interactions
 
 In this chapter, we will work with the following packages.
@@ -184,40 +178,40 @@ In such cases, the ability of `exact_extract()` to apply area-based weights dire
 That said, if your analysis requires high spatial accuracy, for example, when modeling fine-scale ecological processes or when exact area measurements are critical, it is still recommended to reproject both raster and vector data to an appropriate projected CRS.
 Ultimately, the decision depends on the scale, purpose, and precision required by your specific application.
 
-## Buffer Analysis
+<!-- ## Buffer Analysis -->
 
-```{r}
-sf_site_proj <- sf_site %>% 
-  st_transform(crs = 32617)
+<!-- ```{r} -->
+<!-- sf_site_proj <- sf_site %>%  -->
+<!--   st_transform(crs = 32617) -->
 
-sf_site_buff_proj <- sf_site_proj %>% 
-  st_buffer(dist = 5000)
-```
+<!-- sf_site_buff_proj <- sf_site_proj %>%  -->
+<!--   st_buffer(dist = 5000) -->
+<!-- ``` -->
 
-```{r}
-sf_site_buff <- sf_site_buff_proj %>% 
-  st_transform(crs = 4326)
-```
-
-
-```{r}
-ggplot() + 
-  geom_sf(data = sf_nc_county,
-          fill = "grey") +
-  geom_sf(data = sf_site_buff,
-          fill = "salmon") +
-  geom_sf(data = sf_site) +
-  theme_bw()
-```
+<!-- ```{r} -->
+<!-- sf_site_buff <- sf_site_buff_proj %>%  -->
+<!--   st_transform(crs = 4326) -->
+<!-- ``` -->
 
 
-```{r}
-df_prec_buff <- exact_extract(x = spr_prec_nc_proj,
-                              y = sf_site_buff_proj,
-                              fun = "mean", 
-                              append_cols = TRUE,
-                              progress = FALSE) %>% 
-  as_tibble() %>% 
-  rename(precipitation = mean)
-```
+<!-- ```{r} -->
+<!-- ggplot() +  -->
+<!--   geom_sf(data = sf_nc_county, -->
+<!--           fill = "grey") + -->
+<!--   geom_sf(data = sf_site_buff, -->
+<!--           fill = "salmon") + -->
+<!--   geom_sf(data = sf_site) + -->
+<!--   theme_bw() -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- df_prec_buff <- exact_extract(x = spr_prec_nc_proj, -->
+<!--                               y = sf_site_buff_proj, -->
+<!--                               fun = "mean",  -->
+<!--                               append_cols = TRUE, -->
+<!--                               progress = FALSE) %>%  -->
+<!--   as_tibble() %>%  -->
+<!--   rename(precipitation = mean) -->
+<!-- ``` -->
 

@@ -56,7 +56,7 @@ For this exercise, we'll use county data in North Carolina, which is saved in th
 ```{r}
 # read a shapefile (e.g., ESRI Shapefile format)
 # `quiet = TRUE` just for cleaner output
-(sf_nc_county <- st_read(dsn = "data/sf_nc_county.shp",
+(sf_nc_county <- st_read(dsn = "data/nc.shp",
                          quiet = TRUE))
 ```
 
@@ -147,7 +147,8 @@ mapview(sf_str,
 
 **Polygons** represent areas such as lakes, parks, or country boundaries.
 A polygon is formed by a closed sequence of lines that define its perimeter, allowing it to enclose a space and have both area and shape.
-As an example, we’ll use county-level polygon data from North Carolina:
+As an example, we’ll use county-level polygon data from North Carolina.
+Recall that `data/sf_nc_county.rds` was exported in Section \@ref(readexport-vector-data):
 
 ```{r}
 (sf_nc_county <- readRDS("data/sf_nc_county.rds"))

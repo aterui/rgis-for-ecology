@@ -259,13 +259,11 @@ ggplot() +
 
 3.  **Export to GeoPackage format** (ref: Section \@ref(readexport-vector-data))
 
-    -   Save `sf_str_as` as a GeoPackage file named `sf_stream_as.gpkg` in the `data` folder.
-        Use `sf::st_write()`.
+    -   Save `sf_str_as` as a GeoPackage file named `sf_stream_as.gpkg` in the `data` folder. Use `sf::st_write()`.
 
 4.  **Map streams and county boundaries** (ref: Section \@ref(mapping-vector-data))
 
-    -   Create a map displaying both: North Carolina county boundaries from `sf_nc_county`, and Ashe County stream lines from `sf_str_as`.
-        Use `ggplot2::ggplot()` with multiple `geom_sf()` layers.
+    -   Create a map displaying both: North Carolina county boundaries from `sf_nc_county`, and Ashe County stream lines from `sf_str_as`. Use `ggplot2::ggplot()` with multiple `geom_sf()` layers.
 
 5.  **Subset county layer to Ashe county and remap** (ref: Section \@ref(polygon) and Section \@ref(mapping-vector-data))
 
@@ -480,13 +478,13 @@ ggplot() +
 
 3.  **Subset counties with more than ten sites** (ref: Section \@ref(vector-data-manipulation))
 
-    -   From `sf_n_site`, retain only counties with more than three survey sites using `dplyr::filter()`.
+    -   From `sf_n_site`, retain only counties with more than 10 survey sites using `dplyr::filter()`.
 
-    -   Assign the subsetted object to `sf_n3`.
+    -   Assign the subsetted object to `sf_n10`.
 
 4.  **Visualize the distribution on a stacked map** (ref: Section \@ref(mapping-vector-data))
 
-    -   Create a layered (stacked) map showing both `sf_n_site` and `sf_n3`.
+    -   Create a layered (stacked) map showing both `sf_n_site` and `sf_n10`.
 
     -   Plot `sf_n_site` polygons in **grey** to show all counties with at least one site.
 

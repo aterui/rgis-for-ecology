@@ -25,6 +25,7 @@ raster-data-in-gis
 raster-data-format
 readexport-raster-data
 mapping-raster-data
+data-type-in-raster-data
 exercise-3
 raster-data-manipulation
 crop

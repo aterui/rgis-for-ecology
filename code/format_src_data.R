@@ -167,8 +167,8 @@ saveRDS(sf_site_nc,
 
 # sf example --------------------------------------------------------------
 
-# Get roads in a specific NC county
-sf_str <- tigris::linear_water(state = "NC",
+# Get streams
+sf_str_gi <- tigris::linear_water(state = "NC",
                                county = "Guilford",
                                year = 2021) %>% 
   dplyr::select(NULL) %>% 
@@ -177,9 +177,20 @@ sf_str <- tigris::linear_water(state = "NC",
            str_pad(width = 6, pad = "0") %>% 
            paste0("fid", .))
 
-saveRDS(sf_str, "data/sf_stream.rds")
+saveRDS(sf_str_gi, "data/sf_stream_gi.rds")
 
-# Get roads in a specific NC county
+sf_str_as <- tigris::linear_water(state = "NC",
+                                  county = "Ashe",
+                                  year = 2021) %>% 
+  dplyr::select(NULL) %>% 
+  st_transform(crs = 4326) %>% 
+  mutate(fid = row_number() %>% 
+           str_pad(width = 6, pad = "0") %>% 
+           paste0("fid", .))
+
+saveRDS(sf_str_as, "data/sf_stream_as.rds")
+
+# Get county
 sf_nc_county <- st_read(system.file("shape/nc.shp", package = "sf"),
                         quiet = TRUE) %>% 
   rename_with(str_to_lower) %>% 
@@ -259,7 +270,6 @@ writeRaster(spr_prec_us,
             overwrite = TRUE)
 
 ## split data ####
-
 split_raster_four <- function(r) {
   e <- ext(r)
   xm <- (e$xmax + e$xmin) / 2
@@ -281,13 +291,27 @@ split_raster_four <- function(r) {
 }
 
 spr_prec_nc <- rast("data/spr_prec_nc.tif")
-list_spr <- split_raster_four(spr_prec_nc)
+spr_tmp_nc <- rast("data/spr_tmp_nc.tif")
 r <- c("nw", "ne", "sw", "se")
 
-lapply(seq_len(length(list_spr)),
+## precipitation
+list_spr_prec <- split_raster_four(spr_prec_nc)
+lapply(seq_len(length(list_spr_prec)),
        function(i) {
-         writeRaster(list_spr[[i]],
+         writeRaster(list_spr_prec[[i]],
                      filename = paste0("data/spr_prec_nc",
+                                       r[i],
+                                       ".tif"),
+                     overwrite = TRUE)
+       })
+
+
+## temperature
+list_spr_tmp <- split_raster_four(spr_tmp_nc)
+lapply(seq_len(length(list_spr_tmp)),
+       function(i) {
+         writeRaster(list_spr_tmp[[i]],
+                     filename = paste0("data/spr_tmp_nc",
                                        r[i],
                                        ".tif"),
                      overwrite = TRUE)

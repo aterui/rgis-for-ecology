@@ -2,14 +2,23 @@
 
 # Coordinate Systems
 
+## **Learning objectives**
+
+1.  Understand the basic concepts of Coordinate Reference Systems (CRS)
+
+2.  Distinguish between geodetic (geographic) and projected CRS
+
+3.  Learn how to select an appropriate CRS based on data type and analysis goals
+
 In this chapter, we will work with the following packages.
 Before starting any exercises, make sure to run the following code.
 
 ```{r}
+if (!require(pacman)) install.packages("pacman")
 
-library(tidyverse)
-library(sf)
-library(mapview)
+pacman::p_load(tidyverse,
+               sf,
+               mapview)
 
 ```
 
@@ -38,7 +47,7 @@ df_cl_table <- tibble(Column = colnames(df_fish),
                                       "Longitude",
                                       "Latitude",
                                       "Scientific name",
-                                      "Presence/absence of a species (1, present; 0, absent")
+                                      "Presence/absence of a species (1, present; 0, absent)")
                       )
 
 knitr::kable(df_cl_table)
@@ -179,3 +188,21 @@ In a nutshell, **geodetic CRS** define how locations are mapped onto a 3D model 
 **Projected CRS**, on the other hand, define how those geographic locations are transformed (or "projected") onto a flat, 2D surface.
 However, because no projection can preserve all spatial properties at once, **you must choose a projected CRS based on the geometric attributes most important to your analysis** — such as area, distance, or direction.
 Additionally, projected CRS are typically designed for **use within specific geographic regions**, and using one outside its intended area can introduce significant distortion.
+
+## Exercise
+
+1.  **Load the data** (ref: Section \@ref(getting-started))
+    -   Read the CSV file `data_fish_deq.csv` from the `data` folder using the `readr::read_csv()` function. This is a data set of fish fauna in North Carolina collected by the [NC Department of Environmental Quality](https://www.deq.nc.gov/about/divisions/water-resources/water-sciences-section/biological-assessment-branch/fish-community-assessment-data).
+    -   Assign the resulting tibble to an object called `df_fish_deq`.
+    -   Inspect `df_fish_deq` by printing and identify column names that contain unique site identifier and longitude/latitude information.
+    -   Create an object containing a column of unique site identifier along with longitude/latitude columns, and assign the resulting object to `df_site_deq`.
+2.  **Convert to an `sf` object** (ref: Section \@ref(getting-started))
+    -   Convert `df_site_deq` into an `sf` object using the `sf::st_as_sf()` function. Make sure to set the CRS to WGS84 (`EPSG:4326`) using the `crs` argument.
+    -   Assign the resulting spatial object to `sf_site_deq`.
+    -   Visualize `sf_site_deq` with `mapview::mapview()` function.
+3.  **Calculate the distance between two points** (ref: Section \@ref(crs-transformation))
+    -   Select the first two sites in `sf_site_deq` and assign it to `sf_ft_deq`.
+    -   Transform the CRS of `sf_ft_deq` to WGS 84 / UTM 17N using `sf::st_transfrom()`. Assign the resulting object to `sf_ft_deq_utm`.
+    -   Calculate the geographic distance between the two sites.
+4.  **Export the spatial object**
+    -   Save the `sf_site_deq` object as an RDS file named `sf_site_deq.rds` in the `data` folder. Use `saveRDS(sf_site_deq, file = "data/sf_site_deq.rds")`.

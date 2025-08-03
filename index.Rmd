@@ -1,4 +1,4 @@
---- 
+---
 title: "R-GIS for Ecology"
 author: "Akira Terui"
 date: "`r Sys.Date()`"
@@ -18,46 +18,24 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE)
 ```
 
-# About
+# Preface {.unnumbered}
 
-This is a _sample_ book written in **Markdown**. You can use anything that Pandoc's Markdown supports; for example, a math equation $a^2 + b^2 = c^2$.
+## Introduction {.unnumbered}
 
-## Usage 
+Welcome to this site, which introduces R-based GIS applications for ecologists.
 
-Each **bookdown** chapter is an .Rmd file, and each .Rmd file can contain one (and only one) chapter. A chapter *must* start with a first-level heading: `# A good chapter`, and can contain one (and only one) first-level heading.
+Geographic Information Systems (GIS) have long been implemented using platforms like ArcGIS and QGIS.
+However, R now offers powerful and flexible tools that allow ecologists to integrate GIS workflows directly into their data analysis pipelines.
+With R, users can handle spatial data, perform analyses, and create publication-quality maps, all within a reproducible coding environment.
 
-Use second-level and higher headings within chapters like: `## A short section` or `### An even shorter section`.
+This book provides a practical introduction to core GIS techniques with an ecological focus, covering essential tools, concepts, and workflows using R.
 
-The `index.Rmd` file is required, and is also your first book chapter. It will be the homepage when you render the book.
+## Data Sources {.unnumbered}
 
-## Render book
+The datasets used throughout this book are drawn from the following sources:
 
-You can render the HTML version of this example book without changing anything:
+-   [finSyncR](https://usepa.github.io/finsyncR/) — EPA's R package for accessing and processing freshwater biological monitoring data
 
-1. Find the **Build** pane in the RStudio IDE, and
+-   [NC Department of Environmental Quality](https://www.deq.nc.gov/about/divisions/water-resources/water-sciences-section/biological-assessment-branch/fish-community-assessment-data) — Fish community assessment data from North Carolina
 
-1. Click on **Build Book**, then select your output format, or select "All formats" if you'd like to use multiple formats from the same book source files.
-
-Or build the book from the R console:
-
-```{r, eval=FALSE}
-bookdown::render_book()
-```
-
-To render this example to PDF as a `bookdown::pdf_book`, you'll need to install XeLaTeX. You are recommended to install TinyTeX (which includes XeLaTeX): <https://yihui.org/tinytex/>.
-
-## Preview book
-
-As you work, you may start a local server to live preview this HTML book. This preview will update as you edit the book when you save individual .Rmd files. You can start the server in a work session by using the RStudio add-in "Preview book", or from the R console:
-
-```{r eval=FALSE}
-bookdown::serve_book()
-```
-
-
-```{r include=FALSE}
-# automatically create a bib database for R packages
-knitr::write_bib(c(
-  .packages(), 'bookdown', 'knitr', 'rmarkdown'
-), 'packages.bib')
-```
+-   [CHELSA](https://chelsa-climate.org/) — High-resolution climate data for ecological modeling

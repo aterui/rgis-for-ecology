@@ -1,10 +1,18 @@
 # Raster Data (`terra` basics)
 
+## Learning objectives
+
+1.  Understand the structure and data formats of raster data
+
+2.  Create basic maps using raster data
+
+3.  Perform fundamental manipulations of raster data
+
 In this chapter, we will work with the following packages.
 Before starting any exercises, make sure to run the following code.
 
 ```{r}
-if (!require(pacman)) install.packages("packman")
+if (!require(pacman)) install.packages("pacman")
 
 pacman::p_load(tidyverse,
                terra,
@@ -21,7 +29,7 @@ Raster datasets are often used in environmental modeling, remote sensing, and cl
 The `terra` package in R is a modern tool for handling raster (and vector spatial data), designed to replace the older `raster` package with faster performance and more intuitive syntax.
 It allows users to read, write, manipulate, and analyze raster datasets of various formats (e.g., GeoTIFF, NetCDF) and supports integration with vector data through the `sf` and `sp` packages.
 
-### Data format
+### Raster data format
 
 A **GeoTIFF** is a commonly used raster file format in GIS that stores image data along with georeferencing information.
 That is, data that tells the software where the image belongs on the Earth's surface.
@@ -55,7 +63,7 @@ writeRaster(x = spr_ex,
 The object is now saved as `spr_elev.tif` in the `data` subdirectory, specified in the `filename` argument.
 Easy enough!
 
-### Mapping
+### Mapping raster data
 
 Unlike `sf` vector objects, raster data is not natively supported by `ggplot2` for direct visualization.
 This means that typical `ggplot2` functions like `geom_sf()` won't work out of the box for raster layers.
@@ -69,12 +77,35 @@ ggplot() +
   geom_spatraster(data = spr_ex)
 ```
 
-## Crop
+### Exercise
+
+1.  **Read a GeoTIFF file** (ref: Section \@ref(raster-data-format))
+
+    -   Load the raster file `spr_prec_ncne.tif` from the `data` folder using the `terra::rast()` function.
+    -   Assign the result to a new object named `spr_prec_ncne`.
+
+2.  **Inspect raster properties** (ref: Section \@ref(raster-data-format))
+
+    In your own words, describe the following based on the output:
+
+    -   Number of rows and columns (i.e., the raster dimensions)
+    -   Resolution (size of each cell in degrees)
+    -   Spatial extent (minimum and maximum coordinates)
+    -   Coordinate Reference System
+    -   Minimum and maximum precipitation values
+
+3.  **Visualize the raster** (ref: Section \@ref(mapping-raster-data))
+
+    -   Use `ggplot2` with `tidyterra::geom_spatraster()` to create a basic map of the precipitation raster.
+
+## Raster Data Manipulation
+
+### Crop
 
 The `crop()` function is a useful tool for trimming a raster layer down to a defined extent.
 This is particularly helpful when working with large raster files, which can be slow to process and visualize.
 
-### Given extent
+#### Given extent {.unnumbered}
 
 To see how cropping works, let’s start by loading a precipitation dataset.
 This raster is a product from CHELSA (Climatologies at High resolution for the Earth's Land Surface Areas):
@@ -119,7 +150,7 @@ ggplot() +
 
 The resulting plot reveals that the raster and vector extents do not perfectly align.
 
-### Vector extent
+#### Vector extent {.unnumbered}
 
 In later analyses, it's common to work with raster and vector data together, so it's helpful to know how to crop a raster layer using the spatial extent of a vector object.
 
@@ -140,13 +171,13 @@ ggplot() +
           alpha = 0.25) ## alpha = 0.25 makes the polygon layer transparent
 ```
 
-## Merge
+### Merge
 
 The `merge()` function performs the opposite of `crop()`: it combines multiple raster layers into a single, unified raster.
 This operation is essential when working with large geographic datasets that span multiple tiles.
 For example, if you need to calculate summary statistics within a polygon boundary that crosses several raster layers, those rasters must first be merged to ensure the statistics are computed accurately across the entire area of interest.
 
-### Two tiles
+#### Two tiles {.unnunbered}
 
 To try out the `merge()` function, we’ll use a set of precipitation raster tiles, each representing one quarter of North Carolina.
 
@@ -184,7 +215,7 @@ ggplot() +
           alpha = 0.25)
 ```
 
-### More than two tiles
+#### More than two tiles {.unnunbered}
 
 If we wish to merge more than two raster tiles at once, it's often more efficient to use a SpatRaster Collection.
 This allows us to organize multiple `SpatRaster` objects into a single collection that can be handled by functions like `merge()` more easily.
@@ -219,13 +250,12 @@ ggplot() +
           alpha = 0.25)
 ```
 
-## Stack
+### Stack
 
 If we have multiple raster layers with the same extent and resolution, we can "stack" them into a single object for joint analysis.
 A stacked raster is particularly useful when working with multiple environmental variables simultaneously—such as temperature, precipitation, and elevation.
 This approach allows us to perform cell-by-cell operations across layers.
-See Chapter XX for more details.
-\@ref(vector-raster-interactions).
+See Chapter \@ref(vector-raster-interactions) for more details.
 
 Here, we’ll work with precipitation and temperature layers from CHELSA to create a stacked raster.
 Since these layers share the same extent and resolution, they represent an ideal case for stacking.
@@ -271,7 +301,7 @@ We can access each layer separately using `$` operator – this returns the same
 spr_pt_nc$precipitation
 ```
 
-## Reprojection
+### Reprojection
 
 In raster data, we use `terra::project()` to change the CRS.
 To try this out, let’s use the precipitation data for North Carolina.
@@ -291,7 +321,7 @@ Note that, unlike `sf::st_transform()`, `terra::project()` requires the EPSG cod
 
 The `coord. ref.` now says `WGS 84 / UTM zone 17N (EPSG:32617)`
 
-### Resampling
+#### Resampling {.unnunbered}
 
 While reprojection in raster data may seem straightforward, it involves important details; particularly the resampling of raster values.
 When a raster is reprojected, its grid cells are re-aligned to fit the new CRS.
@@ -319,7 +349,7 @@ The following list provides key methods for resampling:
 By default, `terra::project()` applies the nearest neighbor method (`method = "near"`) when the input raster contains discrete data, and uses bilinear interpolation (`method = "bilinear"`) for continuous data.
 More options are available, and you can specify them in the method argument of the function (see `?terra::project` for more details).
 
-### Non-reversible
+#### Non-reversiblity {.unnunbered}
 
 We must be aware of key differences from vector data regarding reprojection.
 In vector data, coordinate transformations are generally reversible, meaning that when you reproject a vector layer to a new CRS and then transform it back to the original CRS, the geometries will retain their original coordinates with high precision.
@@ -329,3 +359,51 @@ In contrast, raster reprojection with `terra::project()` is not reversible.
 This is because raster data consist of a grid of cells, and when reprojecting, the cell values must be resampled to fit a new grid layout in the target CRS.
 This involves interpolation (e.g., bilinear or nearest-neighbor methods), which can introduce small changes or smoothing in the data.
 As a result, reprojecting a raster to a new CRS and then back to the original CRS will not perfectly recover the original values or alignment.
+
+### Exercise
+
+1.  **Crop raster to a defined extent** (ref: Section \@ref(crop))
+
+    -   Load the CHELSA temperature raster `spr_tmp_us.tif` from the `data` folder.
+
+    -   Assign it to an object named `spr_tmp`.
+
+    -   Inspect its spatial extent using `terra::ext()`.
+
+    -   Crop the raster to the extent of North Carolina using `sf_nc_county` (use `terra::crop()`)
+
+    -   Assign the cropped raster to `spr_tmp_nc`.
+
+2.  **Overlay cropped raster with vector boundaries** (ref: Section \@ref(crop))
+
+    -   Load the North Carolina county boundaries (`sf_nc_county.rds`) and overlay them on the cropped raster on a map:
+
+        -   Raster: `spr_tmp_nc`
+
+        -   Vector: `sf_nc_county`
+
+        -   Use `ggplot2::ggplot()` with `geom_spatraster()` and `geom_sf()` (*Tip: Use `alpha = 0.25` in `geom_sf()` to make the polygons transparent.)*
+
+3.  **Merge raster files** (ref: Section \@ref(merge))
+
+    -   Load four regional temperature tiles: `spr_tmp_ncnw.tif` (Northwest), `spr_tmp_ncne.tif` (Northeast), `spr_tmp_ncsw.tif` (Southwest), `spr_tmp_ncse.tif` (Southeast)
+
+    -   Merge **all four** using:
+
+        -   A list of rasters.
+
+        -   `terra::sprc()` to create a `SpatRasterCollection`.
+
+        -   `merge()` to combine all tiles into `spr_merge`.
+
+        -   Plot `spr_merge` over `sf_nc_county` to confirm coverage (use `ggplot()` format).
+
+4.  **Reproject raster and explore resampling** (ref: Section \@ref(reprojection))
+
+    -   Reproject `spr_tmp_nc` to a projected CRS: UTM Zone 17N (EPSG:32617).
+        Use `terra::project()` with `y = "EPSG:32617"`.
+        Given the data type of the temperature layer, choose an appropriate method of resampling (either `method = "near"` or `method = "bilinear"`).
+
+    -   Assign to `spr_tmp_nc_proj`.
+
+    -   Inspect the new CRS and resolution by printing the projected object.

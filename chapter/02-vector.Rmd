@@ -1,25 +1,25 @@
 # Vector Data (`sf` basics)
 
+## Learning objectives
+
+1.  Understand the structure and data formats of vector data
+
+2.  Identify and describe the three main types of vector data: points, lines, and polygons
+
+3.  Create basic maps using vector data
+
+4.  Perform fundamental manipulations of vector data
+
 In this chapter, we will work with the following packages.
 Before starting any exercises, make sure to run the following code.
 
 ```{r}
-if (!require(pacman)) install.packages("packman")
+if (!require(pacman)) install.packages("pacman")
 
 pacman::p_load(tidyverse,
                sf,
                mapview)
 ```
-
-Learning objectives:
-
-1.  Understand the data format of vector data
-
-2.  Understand the types and structures of vector data (points, lines, and polygons)
-
-3.  Being able to produce a map using vector data
-
-4.  Being able to manipulate vector data
 
 ## Vector Data in GIS
 
@@ -31,7 +31,7 @@ For example, a polygon representing a park might include attributes such as its 
 
 Vector data is particularly useful for representing clearly defined boundaries and discrete features, and it allows for detailed spatial analysis and accurate map production.
 
-### Data format
+### Vector data format
 
 Traditionally, vector data has been stored in the **ESRI Shapefile** format (`.shp`).
 This format was originally developed by ESRI in the 1990s and remains widely used across many GIS platforms.
@@ -120,6 +120,23 @@ mapview(sf_site,
         legend = FALSE) # disable legend
 ```
 
+One advantage of using the `sf` package is that it allows you to subset spatial features just like regular data frames.
+For example, if you want to examine the first 10 survey sites, you can use the `dplyr::slice()` function to extract those rows while preserving their spatial structure.
+
+```{r}
+## first 10 sites
+(sf_site_f10 <- sf_site %>% 
+  slice(1:10))
+```
+
+Visualize:
+
+```{r}
+mapview(sf_site_f10,
+        col.regions = "black", # point's fill color
+        legend = FALSE) # disable legend
+```
+
 ### Line
 
 **Lines** (also called **polylines**) represent linear features such as roads, rivers, or trails.
@@ -127,11 +144,11 @@ A line consists of a sequence of connected points and may include curves or bend
 Lines have length, but no area.
 
 Stream lines are an example of line geometries.
-We will use a sample dataset stored in `data/sf_stream.rds`, which illustrate stream networks within Guilford county, NC.
+We will use a sample dataset stored in `data/sf_stream_gi.rds`, which illustrate stream networks within Guilford county, NC.
 You can load and inspect it in R as follows:
 
 ```{r}
-(sf_str <- readRDS("data/sf_stream.rds"))
+(sf_str <- readRDS("data/sf_stream_gi.rds"))
 ```
 
 In contrast to the point vector layer introduced earlier, this dataset's geometry column contains the notation `LINESTRING`, indicating that the features represent linear geometries—specifically, stream segments.
@@ -139,6 +156,22 @@ Let’s visualize this data to better understand its structure:
 
 ```{r}
 mapview(sf_str,
+        color = "steelblue", # line's color
+        legend = FALSE) # disable legend
+```
+
+Similar to point data, we can subset line strings as if they are a regular data frame:
+
+```{r}
+## first 10 line strings
+(sf_str_f10 <- sf_str %>% 
+  slice(1:10))
+```
+
+Visualize:
+
+```{r}
+mapview(sf_str_f10,
         color = "steelblue", # line's color
         legend = FALSE) # disable legend
 ```
@@ -164,7 +197,23 @@ mapview(sf_nc_county,
         legend = FALSE) # disable legend
 ```
 
-### Mapping
+Just like point/line features, we can use `dplyr::slice()` function to select a given set of counties; however, let's use the `filter()` function here, as `sf_nc_county` object contains column county that specifies county name.
+For example, we can choose the Guilford county just like a regular data frame:
+
+```{r}
+(sf_nc_gi <- sf_nc_county %>% 
+  filter(county == "guilford"))
+```
+
+Visualize:
+
+```{r}
+mapview(sf_nc_gi,
+        col.regions = "grey", # polygon's fill color
+        legend = FALSE) # disable legend
+```
+
+### Mapping vector data
 
 To visualize various types of vector data together, we can use the `ggplot2` package with its `geom_sf()` function, which natively supports spatial features.
 
@@ -193,16 +242,45 @@ ggplot() +
   geom_sf(data = sf_site)
 ```
 
-## Spatial Data Manipulation
+### Exercise
+
+1.  **Read stream line data for Ashe county** (ref: Section \@ref(readexport-vector-data))
+
+    -   Load the stream line data file `sf_stream_as.rds` located in the `data` folder.
+        *Use `readRDS()`.*
+
+    -   Assign the loaded object to `sf_str_as`.
+
+2.  **Check coordinate reference systems (CRS)** (ref: Section \@ref(readexport-vector-data))
+
+    -   Print objects tocheck the CRS for both `sf_str_as` and `sf_nc_county`.
+
+    -   Determine whether they share the same CRS.
+
+3.  **Export to GeoPackage format** (ref: Section \@ref(readexport-vector-data))
+
+    -   Save `sf_str_as` as a GeoPackage file named `sf_stream_as.gpkg` in the `data` folder.
+        Use `sf::st_write()`.
+
+4.  **Map streams and county boundaries** (ref: Section \@ref(mapping-vector-data))
+
+    -   Create a map displaying both: North Carolina county boundaries from `sf_nc_county`, and Ashe County stream lines from `sf_str_as`.
+        Use `ggplot2::ggplot()` with multiple `geom_sf()` layers.
+
+5.  **Subset county layer to Ashe county and remap** (ref: Section \@ref(polygon) and Section \@ref(mapping-vector-data))
+
+    -   Subset the `sf_nc_county` object to include only Ashe County.
+        Use `dplyr::filter()` for subsetting.
+        Assign the result to `sf_nc_as`.
+
+    -   Then, recreate the map showing only `sf_nc_as` and `sf_str_as`.
+
+## Vector Data Manipulation
 
 ### Spatial join
 
 While the map we created earlier provides a good overview, it may appear odd because the stream network is only available for Guilford County, yet the other layers (such as survey sites and county boundaries) span the entire state.
 To better align the spatial representation, we might want to focus on Guilford County across all layers.
-
-<!-- One of the major benefits of using R GIS analysis is that spatial features can be manipulated just like regular data frames.  -->
-
-<!-- This kind of spatial subsetting is also possible in platforms like ArcGIS or QGIS, but often involves tedious click-and-save workflows, which I personally try to avoid. -->
 
 To narrow down the survey sites to only those that fall within Guilford County, we can use the `sf::st_join()` function from the `sf` package.
 This function performs a spatial join, associating attributes from one layer (e.g., counties) to another (e.g., point locations) based on their geographic overlap.
@@ -248,7 +326,8 @@ With these filtered layers, we can re-create the map -- this time focusing exclu
 ggplot() +
   geom_sf(data = sf_nc_guilford) +
   geom_sf(data = sf_str) +
-  geom_sf(data = sf_site_guilford)
+  geom_sf(data = sf_site_guilford) +
+  theme_bw()
 ```
 
 If we wish, we can customize the colors of each layer and apply a clean base theme to enhance the appearance:
@@ -349,8 +428,66 @@ Good, now each feature in `sf_nc_county_w_area` includes its corresponding area 
 This process can be done in a single step as well.
 
 ```{r, eval = FALSE}
-sf_nc_county_w_area <- sf_nc_county %>% 
+(sf_nc_county_w_area <- sf_nc_county %>% 
   st_transform(crs = 32617) %>%       # transform to projected CRS (utm zone 17n) for accurate area calculation
   mutate(area = st_area(.)) %>%       # calculate area of each polygon and store it in a new column
-  st_transform(crs = 4326)            # transform back to geographic CRS (wgs84) for consistency with other layers
+  st_transform(crs = 4326))           # transform back to geographic CRS (wgs84) for consistency with other layers
 ```
+
+#### Filter by geometric attributes {.unnumbered}
+
+We can subset geometries by their attributes.
+The class `sf` allows you to subset data using familiar functions in `tidyverse`, such as `filter()`.
+
+The following R code filters spatial features in the `sf_nc_county_w_area` dataset to retain only those North Carolina counties with an area greater than 1,000 square kilometers.
+First, it converts the `area` column (which is in square meters) into square kilometers by dividing each value by 1,000,000 (`1e+6`).
+Then, it filters the data to include only counties whose converted area exceeds 1,000, and stores the result in a new object called `sf_nc_county_1000`.
+
+```{r}
+(sf_nc_county_1000 <- sf_nc_county_w_area %>% 
+  mutate(area = as.numeric(area) / 1e+6) %>% 
+  filter(area > 1000))
+```
+
+Visualize:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_county_1000) +
+  theme_bw()
+```
+
+### Exercise
+
+1.  **Spatial join of survey sites and counties** (ref: Section \@ref(spatial-join))
+
+    -   Load `sf_site_deq.rds` from the `data` folder using `readRDS()`.
+        This file should have been created through the exercise in Chapter \@ref(coordinate-systems).
+
+    -   Assign the loaded object to `sf_site_deq`.
+
+    -   Perform a spatial join between the survey site object `sf_site_deq` and the North Carolina county object `sf_nc_county`.
+
+    -   Assign the resulting joined object to `sf_site_deq_join`.
+
+2.  **Count survey sites per county** (ref: [group operation](https://aterui.github.io/biostats/data-manipulation.html#group-operation))
+
+    -   Using `sf_site_join`, calculate the number of survey sites in each county.
+        Use `dplyr::group_by()` to group by `county`.
+
+    -   Then use `dplyr::summarize()` to create a new column `n` containing the count of survey sites.
+        Assign the resulting object to `sf_n_site`.
+
+3.  **Subset counties with more than ten sites** (ref: Section \@ref(vector-data-manipulation))
+
+    -   From `sf_n_site`, retain only counties with more than three survey sites using `dplyr::filter()`.
+
+    -   Assign the subsetted object to `sf_n3`.
+
+4.  **Visualize the distribution on a stacked map** (ref: Section \@ref(mapping-vector-data))
+
+    -   Create a layered (stacked) map showing both `sf_n_site` and `sf_n3`.
+
+    -   Plot `sf_n_site` polygons in **grey** to show all counties with at least one site.
+
+    -   Overlay `sf_n3` polygons in **salmon** to highlight counties with more than three sites.

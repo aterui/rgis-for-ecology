@@ -269,7 +269,7 @@ writeRaster(spr_prec_us,
             "data/spr_prec_us.tif",
             overwrite = TRUE)
 
-## split data ####
+### split data ####
 split_raster_four <- function(r) {
   e <- ext(r)
   xm <- (e$xmax + e$xmin) / 2
@@ -316,3 +316,52 @@ lapply(seq_len(length(list_spr_tmp)),
                                        ".tif"),
                      overwrite = TRUE)
        })
+
+## land use data ####
+spr_land <- list.files("data/src",
+                       pattern = "PROBAV",
+                       full.names = TRUE) %>% 
+  terra::rast() %>% 
+  crop(st_read("data/nc.shp"))
+
+## forest
+spr_for <- terra::classify(spr_land,
+                           rcl = rbind(c(110.9, 126.1, 1),
+                                       c(2, 500, 0)))
+
+names(spr_for) <- "forest"
+
+## crop
+spr_crop <- terra::classify(spr_land,
+                            rcl = rbind(c(39.9, 40.1, 1),
+                                        c(2, 500, 0)))
+names(spr_crop) <- "crop"
+
+## urban
+spr_urb <- terra::classify(spr_land,
+                           rcl = rbind(c(49.9, 50.1, 1),
+                                       c(2, 500, 0)))
+
+names(spr_urb) <- "urban"
+
+## reclass
+spr_reclass <- terra::classify(spr_land,
+                               rcl = rbind(c(110.9, 126.1, 1001),
+                                           c(39.9, 40.1, 1010),
+                                           c(49.9, 50.1, 1100),
+                                           c(2, 500, 0)))
+
+## export
+list(spr_for,
+     spr_crop,
+     spr_urb) %>% 
+  lapply(function(x) {
+    fnm <- paste0("data/spr_", names(x), "_nc.tif")
+    writeRaster(x,
+                fnm,
+                overwrite = TRUE)    
+  })
+
+writeRaster(spr_reclass,
+            "data/spr_land_reclass.tif",
+            overwrite = TRUE)

@@ -77,6 +77,42 @@ ggplot() +
   geom_spatraster(data = spr_ex)
 ```
 
+### Data type in raster data
+
+There are two main types of data in raster formats: **continuous** and **discrete**.
+
+Continuous raster data represents variables that can take on any value within a range, such as temperature, elevation, or precipitation.
+These values change gradually across space and are often used in analyses involving interpolation, surface modeling, or mathematical transformations.
+The `spr_ex` object contained elevation data – let's apply the `terra::minmax()` function (retrieve max/min values from the raster) to confirm that this raster contains continuous values:
+
+```{r}
+minmax(spr_ex)
+```
+
+In contrast, discrete raster data represents categorical information, where each cell contains a value corresponding to a specific class or category—such as land cover type, vegetation class, or soil type.
+These values do not vary smoothly but instead indicate distinct spatial zones.
+Let's take a look at land use data from [Copernics](https://land.copernicus.eu/en/products?tab=full_coverage_land_cover__use) - in the data folder, we have `spr_forest_nc.tif` (as well as `spr_crop_nc.tif` and `spr_urban_nc.tif`), in which each cell value indicates whether the cell is classified as forest (`1`) or not (`0`):
+
+```{r}
+(spr_for <- rast("data/spr_forest_nc.tif"))
+```
+
+Applying the `terra::unique()` function, which retrieves unique values from the raster, confirms that this raster contains only binary information:
+
+```{r}
+unique(spr_for)
+```
+
+Let's visualize this raster, alongside the elevation layer `spr_ex` visualized above. 
+The contrast between forested and non-forested areas is clearly visible through distinct color zones.
+
+```{r}
+ggplot() +
+  geom_spatraster(data = spr_for)
+```
+
+Recognizing the difference between continuous and discrete rasters is important, as it determines the appropriate methods for analysis, visualization, and interpretation.
+
 ### Exercise
 
 1.  **Read a GeoTIFF file** (ref: Section \@ref(raster-data-format))

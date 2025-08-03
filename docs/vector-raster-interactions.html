@@ -77,7 +77,7 @@
 </ol>
 <p>In this chapter, we will work with the following packages.
 Before starting any exercises, make sure to run the following code.</p>
-<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/trinker/pacman">pacman</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"pacman"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">pacman</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pacman/man/p_load.html">p_load</a></span><span class="op">(</span><span class="va">tidyverse</span>,</span>
@@ -95,7 +95,7 @@ To do this effectively, we often need to extract values from raster layers at sp
 This step allows us to link ecological observations with spatial environmental data for further analysis.
 In this exercise, we will use fish survey sites and county polygons to extract environmental variables from raster data.</p>
 <p>To get started, read the following datasets into R to perform the analysis:</p>
-<div class="sourceCode" id="cb103"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb110"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## finsync survey site</span></span>
 <span><span class="va">sf_site</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/sf_finsync_nc.rds"</span><span class="op">)</span></span>
 <span></span>
@@ -111,18 +111,18 @@ In this exercise, we will use fish survey sites and county polygons to extract e
 </h2>
 <p>Let’s perform point-wise extraction of precipitation values at survey site locations.
 To explore the spatial patterns and get a sense of the data, we will first visualize the raster precipitation data using <code><a href="https://dieghernan.github.io/tidyterra/reference/geom_spatraster.html">tidyterra::geom_spatraster()</a></code> and overlay the survey sites using <code><a href="https://ggplot2.tidyverse.org/reference/ggsf.html">ggplot2::geom_sf()</a></code>.</p>
-<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_prec_nc</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_site</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="co"># change color palette for raster</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-74-1.png" width="672"></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-78-1.png" width="672"></div>
 <p>To extract raster values at the survey sites, we will use the <code><a href="https://rspatial.github.io/terra/reference/extract.html">terra::extract()</a></code> function.
 This function retrieves the values of one or more raster layers at the locations specified by spatial vector data, such as points or polygons.
 In our case, it will return the precipitation value at each survey site location.</p>
 <p>Since the output of <code><a href="https://rspatial.github.io/terra/reference/extract.html">terra::extract()</a></code> with <code>bind = TRUE</code> is a class of <code>SpatVector</code> that includes geometry but is not yet an <code>sf</code> object, we convert it back to an sf object using <code><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html">sf::st_as_sf()</a></code> (using <code>%&gt;%</code>, these steps can be done in one step).</p>
-<div class="sourceCode" id="cb105"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb112"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # The following code works exactly as:</span></span>
 <span><span class="co"># spr_site_prec &lt;- extract(x = spr_prec_nc,</span></span>
 <span><span class="co">#                          y = sf_site,</span></span>
@@ -153,7 +153,7 @@ In our case, it will return the precipitation value at each survey site location
 ## 10 finsync_nrs_nc-10049        1444.7 POINT (-77.96322 34.58249)</code></pre>
 <p>This allows for seamless spatial operations and visualization downstream.
 Since our point data now include precipitation values, we can represent the survey sites with colors that reflect the precipitation gradient.</p>
-<div class="sourceCode" id="cb107"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,       <span class="co"># Plot county boundaries as a grey background</span></span>
 <span>          fill <span class="op">=</span> <span class="st">"grey"</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -161,7 +161,7 @@ Since our point data now include precipitation values, we can represent the surv
 <span>          <span class="fu">aes</span><span class="op">(</span>color <span class="op">=</span> <span class="va">precipitation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">scale_color_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>          <span class="co"># Apply a perceptually uniform color scale</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span>                        <span class="co"># Use a clean black-and-white theme</span></span></code></pre></div>
-<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-76-1.png" width="672"></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-80-1.png" width="672"></div>
 </div>
 <div id="zonal-statistics" class="section level2" number="4.4">
 <h2>
@@ -185,7 +185,7 @@ This is because zonal statistics summarize values over areas, and accurate area-
 Then, we use <code><a href="https://rspatial.github.io/terra/reference/project.html">terra::project()</a></code> to reproject the raster layer <code>spr_prec_nc</code> to match the polygon layer’s CRS.
 The <code>method = "bilinear"</code> option is used for resampling continuous raster data (such as precipitation)<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;&lt;code&gt;method = "nearest"&lt;/code&gt; should be used for categorical raster data.
 See &lt;code&gt;?terra::project()&lt;/code&gt; .&lt;/p&gt;'><sup>2</sup></a>, providing smoother interpolation.</p>
-<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sf_nc_county_proj</span> <span class="op">&lt;-</span> <span class="fu">st_transform</span><span class="op">(</span><span class="va">sf_nc_county</span>,</span>
 <span>                                  crs <span class="op">=</span> <span class="fl">32617</span><span class="op">)</span></span>
 <span></span>
@@ -196,7 +196,7 @@ See &lt;code&gt;?terra::project()&lt;/code&gt; .&lt;/p&gt;'><sup>2</sup></a>, pr
 <p>In the code below, <code>exact_extract()</code> is used to calculate the mean precipitation within each county polygon (<code>sf_nc_county_proj</code>) from the reprojected raster <code>spr_prec_nc_proj</code>.
 The argument <code>fun = "mean"</code> specifies that we want to compute the simple mean of all raster cell values that overlap each polygon.
 The <code>append_cols = TRUE</code> option ensures that all original attributes from the <code>sf_nc_county_proj</code> object are retained in the output, which makes it easier to link the results back to the spatial features.</p>
-<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb116"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># NOTE: `progress = FALSE` turns off the progress bar for cleaner output</span></span>
 <span><span class="op">(</span><span class="va">df_prec_county</span> <span class="op">&lt;-</span> <span class="fu">exact_extract</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec_nc_proj</span>,</span>
 <span>                                 y <span class="op">=</span> <span class="va">sf_nc_county_proj</span>,</span>
@@ -222,7 +222,7 @@ The <code>append_cols = TRUE</code> option ensures that all original attributes 
 <p>Although the output from <code>exact_extract()</code> is a regular data frame (not an <code>sf</code> object), we can easily merge the computed statistics back into the original spatial data using <code>left_join()</code><a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;The &lt;code&gt;left_join()&lt;/code&gt; function performs a key-based merge, adding the precipitation values from &lt;code&gt;df_prec_county&lt;/code&gt; to the corresponding polygons in &lt;code&gt;sf_nc_county&lt;/code&gt;.&lt;/p&gt;"><sup>3</sup></a>.
 This allows us to retain the spatial geometry of the county polygons while adding the precipitation values as new attributes.</p>
 <p>In the example below, we assume that both the original <code>sf</code> object (<code>sf_nc_county</code>) and the extracted results (<code>df_prec_county</code>) share a common identifier column named <code>county</code>.</p>
-<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb118"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">sf_nc_county_prec</span> <span class="op">&lt;-</span> <span class="va">sf_nc_county</span> <span class="op">%&gt;%</span> </span>
 <span>   <span class="fu">left_join</span><span class="op">(</span><span class="va">df_prec_county</span>,</span>
 <span>             by <span class="op">=</span> <span class="st">"county"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -245,13 +245,13 @@ This allows us to retain the spatial geometry of the county polygons while addin
 ## 10      stokes      1217.916 MULTIPOLYGON (((-80.02545 3...</code></pre>
 <p>The following plot uses <code>ggplot2</code> to visualize the mean precipitation values calculated for each county.
 The <code>geom_sf()</code> layer draws the county boundaries from the <code>sf_nc_county_prec</code> object, and the <code>aes(color = precipitation)</code> argument maps the precipitation values to a color gradient.</p>
-<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb120"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county_prec</span>,</span>
 <span>          <span class="fu">aes</span><span class="op">(</span>fill <span class="op">=</span> <span class="va">precipitation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-80-1.png" width="672"></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-84-1.png" width="672"></div>
 </div>
 <div id="alternative-approach" class="section level4 unnumbered">
 <h4>Alternative approach<a class="anchor" aria-label="anchor" href="#alternative-approach"><i class="fas fa-link"></i></a>
@@ -260,7 +260,7 @@ The <code>geom_sf()</code> layer draws the county boundaries from the <code>sf_n
 <p>However, the <code>exact_extract()</code> function provides a convenient alternative that avoids the need for explicit reprojection.
 By specifying <code>fun = "weighted_mean"</code> and <code>weights = "area"</code>, we instruct the function to calculate the mean precipitation for each polygon by weighting each raster cell’s contribution according to <strong>the fraction of its area that overlaps the polygon</strong>.</p>
 <p>This internal weighting allows <code>exact_extract()</code> to produce geometrically accurate results even when the layers remain in a geographic CRS (e.g., WGS 84), which is especially useful when working with global datasets or when reprojection is impractical.</p>
-<div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb121"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">df_prec_county_alt</span> <span class="op">&lt;-</span> <span class="fu">exact_extract</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec_nc</span>,</span>
 <span>                                     y <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
 <span>                                     fun <span class="op">=</span> <span class="st">"weighted_mean"</span>,</span>
@@ -299,7 +299,7 @@ However, environmental influences often operate at broader spatial scales.
 In such cases, buffer-based extraction may be more appropriate.</p>
 <p>Like other zonal statistics, buffer analysis assumes a planar coordinate system, so it is important to first transform the data to a projected CRS.
 Once projected, you can generate buffers around the survey sites using the <code><a href="https://r-spatial.github.io/sf/reference/geos_unary.html">sf::st_buffer()</a></code> function.</p>
-<div class="sourceCode" id="cb116"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb123"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sf_site_proj</span> <span class="op">&lt;-</span> <span class="va">sf_site</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">st_transform</span><span class="op">(</span>crs <span class="op">=</span> <span class="fl">32617</span><span class="op">)</span></span>
 <span></span>
@@ -308,11 +308,11 @@ Once projected, you can generate buffers around the survey sites using the <code
 <p>The object <code>sf_site_buff_proj</code> is currently in a projected CRS (<code>WGS 84 / UTM zone 17N; EPSG:32617</code>), which is appropriate for spatial operations like buffering.</p>
 <p>However, for visualization, a geodetic CRS such as WGS84 (<code>EPSG:4326</code>) is typically preferred.
 Transform the object back to a geodetic CRS to ensure correct alignment with standard basemaps and mapping applications.</p>
-<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb124"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sf_site_buff</span> <span class="op">&lt;-</span> <span class="va">sf_site_buff_proj</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">st_transform</span><span class="op">(</span>crs <span class="op">=</span> <span class="fl">4326</span><span class="op">)</span></span></code></pre></div>
 <p>Visualization allows you to see how buffers are created around the survey sites, helping to confirm that the spatial scale and geometry are appropriate for your analysis.</p>
-<div class="sourceCode" id="cb118"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb125"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
 <span>          fill <span class="op">=</span> <span class="st">"grey"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -320,9 +320,9 @@ Transform the object back to a geodetic CRS to ensure correct alignment with sta
 <span>          fill <span class="op">=</span> <span class="st">"salmon"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_site</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-84-1.png" width="672"></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-88-1.png" width="672"></div>
 <p>Taking zonal statistics is the same—after buffering in projected space, you can use the <code><a href="https://isciences.gitlab.io/exactextractr/reference/exact_extract.html">exactextractr::exact_extract()</a></code> function to perform area-weighted extraction of raster values within each buffer zone.</p>
-<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb126"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_prec_buff</span> <span class="op">&lt;-</span> <span class="fu">exact_extract</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_prec_nc_proj</span>,</span>
 <span>                              y <span class="op">=</span> <span class="va">sf_site_buff_proj</span>,</span>
 <span>                              fun <span class="op">=</span> <span class="st">"mean"</span>,</span>
@@ -331,7 +331,7 @@ Transform the object back to a geodetic CRS to ensure correct alignment with sta
 <span>  <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">rename</span><span class="op">(</span>precipitation <span class="op">=</span> <span class="va">mean</span><span class="op">)</span></span></code></pre></div>
 <p>Like we did in the above examples, we can tie these extracted values back to the original point data by joining the summary statistics to the corresponding survey sites.</p>
-<div class="sourceCode" id="cb120"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">sf_site_prec_buff</span> <span class="op">&lt;-</span> <span class="va">sf_site</span> <span class="op">%&gt;%</span> </span>
 <span>   <span class="fu">left_join</span><span class="op">(</span><span class="va">df_prec_buff</span>,</span>
 <span>             by <span class="op">=</span> <span class="st">"site_id"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -355,7 +355,7 @@ Transform the object back to a geodetic CRS to ensure correct alignment with sta
 ## 10 finsync_nrs_nc-10049 (-77.96322 34.58249)         1444.
 ## # ℹ 112 more rows</code></pre>
 <p>Visualize:</p>
-<div class="sourceCode" id="cb122"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_nc_county</span>,</span>
 <span>          fill <span class="op">=</span> <span class="st">"grey"</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -363,7 +363,7 @@ Transform the object back to a geodetic CRS to ensure correct alignment with sta
 <span>          <span class="fu">aes</span><span class="op">(</span>color <span class="op">=</span> <span class="va">precipitation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">scale_color_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-87-1.png" width="672"></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-91-1.png" width="672"></div>
 <p>Fantastic!</p>
 
 </div>

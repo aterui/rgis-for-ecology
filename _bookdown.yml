@@ -3,8 +3,9 @@ language:
   ui:
     chapter_name: "Chapter "
 rmd_files: ["index.Rmd",
-            "chapter/01-crs.Rmd",
-            "chapter/02-vector.Rmd",
-            "chapter/03-raster.Rmd",
-            "chapter/04-vector-raster.Rmd"]
+            "chapter/p01_01-clone.Rmd",
+            "chapter/p02_01-crs.Rmd",
+            "chapter/p02_02-vector.Rmd",
+            "chapter/p02_03-raster.Rmd",
+            "chapter/p02_04-vector-raster.Rmd"]
 output_dir: "docs"

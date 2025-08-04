@@ -1,0 +1,491 @@
+# Vector Data (`sf` basics)
+
+## Learning objectives
+
+1.  Understand the structure and data formats of vector data
+
+2.  Identify and describe the three main types of vector data: points, lines, and polygons
+
+3.  Create basic maps using vector data
+
+4.  Perform fundamental manipulations of vector data
+
+In this chapter, we will work with the following packages.
+Before starting any exercises, make sure to run the following code.
+
+```{r}
+if (!require(pacman)) install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               sf,
+               mapview)
+```
+
+## Vector Data in GIS
+
+In GIS, **vector data** is one of the primary ways to represent geographic features on a map.
+Vector data uses **geometric shapes** -- specifically **points, lines, and polygons** -- to model real-world objects.
+
+Each vector feature can also carry **attribute data**, which are stored in a table linked to the spatial features.
+For example, a polygon representing a park might include attributes such as its name, size, or type of vegetation.
+
+Vector data is particularly useful for representing clearly defined boundaries and discrete features, and it allows for detailed spatial analysis and accurate map production.
+
+### Vector data format
+
+Traditionally, vector data has been stored in the **ESRI Shapefile** format (`.shp`).
+This format was originally developed by ESRI in the 1990s and remains widely used across many GIS platforms.
+However, it is somewhat cumbersome because it is not a single file; shapefiles require at least **four associated files** (`.shp`, `.shx`, `.dbf`, and `.prj`) to function properly.
+These files must be kept together, which makes file management and sharing more error-prone.
+
+In recent years, the **GeoPackage** format (`.gpkg`) has gained popularity.
+It simplifies data storage by combining all necessary components into a single, portable file.
+
+In the context of R, even better, vector data can also be saved using the native RDS format (`.rds`).
+This format is not cross-platform compatible with other GIS software, but it offers advantages within R: it is more **memory efficient** and often results in smaller file sizes.
+For these reasons, this book primarily uses the `.rds` format for storing vector data, unless compatibility with external software requires otherwise.
+
+### Read/Export vector data
+
+Since it is still common to share data in ESRI Shapefile format, we'll start by loading a `.shp` file into R.
+Then, we'll save the imported data in `.rds` format to simplify later steps in our workflow.
+
+The `sf::st_read()` function from the `sf` package allows you to import shapefiles (`.shp`) as well as other standard GIS formats.
+For this exercise, we'll use county data in North Carolina, which is saved in the `data` subdirectory -- as mentioned, this data comes with four associated files (check the `data` subdirectory).
+
+```{r}
+# read a shapefile (e.g., ESRI Shapefile format)
+# `quiet = TRUE` just for cleaner output
+(sf_nc_county <- st_read(dsn = "data/nc.shp",
+                         quiet = TRUE))
+```
+
+The first several lines of the output summarize the contents of an `sf` object.
+It contains 100 features (rows), each with one attribute field and a geometry of type `MULTIPOLYGON` (line `Geometry type:`), which is commonly used to represent areas like counties.
+The coordinates are XY two-dimensional (line `Dimension:`), and the bounding box shows the spatial extent of the data (line `Bounding box:`).
+The coordinate reference system (CRS) is WGS 84 (line `Geodetic CRS:`), a common geographic CRS based on latitude and longitude.
+
+You can export the vector data using `sf::st_write()`.
+This function supports writing to multiple formats, including Shapefile and GeoPackage.
+Check the `data` subdirectory to see the exported files.
+
+```{r, eval = FALSE}
+# save as shapefile (overwrites by setting append = FALSE)
+st_write(sf_nc_county, 
+         dsn = "data/sf_nc_county.shp",
+         append = FALSE)
+
+# save as Geopackage (overwrites by setting append = FALSE)
+st_write(sf_nc_county, 
+         dsn = "data/sf_nc_county.gpkg",
+         append = FALSE)
+```
+
+For use within R, it is often convenient to save spatial data in `.rds` format using the `saveRDS()` function.
+This format is compact and efficient, making it ideal for storing intermediate results.
+Keep in mind, however, that `.rds` files are not compatible with other GIS software, so you’ll need to convert them to `.shp` or `.gpkg` for others using common GIS platforms.
+
+```{r, eval = FALSE}
+# save as an RDS file (compact and efficient for use within R)
+saveRDS(sf_nc_county,
+        file = "data/sf_nc_county.rds")
+```
+
+To reload a saved `.rds` file in R, use the `readRDS()` function.
+
+```{r, eval = FALSE}
+# read from an RDS file
+sf_nc_county <- readRDS(file = "data/sf_nc_county.rds")
+```
+
+### Point
+
+**Points** represent discrete locations that have no area or length, such as the location of a weather station, a tree, or a city.
+Each point has a pair of coordinates (latitude and longitude or x and y) that indicate its position.
+
+The sample data used in Chapter \@ref(coordinate-systems) is an example of a point vector layer.
+Let's take a closer look at this dataset (saved as `data/sf_finsync_nc.rds` in the shared repository).
+
+```{r}
+(sf_site <- readRDS("data/sf_finsync_nc.rds"))
+```
+
+If you examine the geometry column, you'll see that it contains pairs of latitude and longitude values with the notation `<POINT [°]>`, which specify the location of each site.
+Using this geographic information, we visualized the survey sites on a map in Chapter \@ref(getting-started).
+We can map this data with `mapview::mapview()` function:
+
+```{r}
+mapview(sf_site,
+        col.regions = "black", # point's fill color
+        legend = FALSE) # disable legend
+```
+
+One advantage of using the `sf` package is that it allows you to subset spatial features just like regular data frames.
+For example, if you want to examine the first 10 survey sites, you can use the `dplyr::slice()` function to extract those rows while preserving their spatial structure.
+
+```{r}
+## first 10 sites
+(sf_site_f10 <- sf_site %>% 
+  slice(1:10))
+```
+
+Visualize:
+
+```{r}
+mapview(sf_site_f10,
+        col.regions = "black", # point's fill color
+        legend = FALSE) # disable legend
+```
+
+### Line
+
+**Lines** (also called **polylines**) represent linear features such as roads, rivers, or trails.
+A line consists of a sequence of connected points and may include curves or bends.
+Lines have length, but no area.
+
+Stream lines are an example of line geometries.
+We will use a sample dataset stored in `data/sf_stream_gi.rds`, which illustrate stream networks within Guilford county, NC.
+You can load and inspect it in R as follows:
+
+```{r}
+(sf_str <- readRDS("data/sf_stream_gi.rds"))
+```
+
+In contrast to the point vector layer introduced earlier, this dataset's geometry column contains the notation `LINESTRING`, indicating that the features represent linear geometries—specifically, stream segments.
+Let’s visualize this data to better understand its structure:
+
+```{r}
+mapview(sf_str,
+        color = "steelblue", # line's color
+        legend = FALSE) # disable legend
+```
+
+Similar to point data, we can subset line strings as if they are a regular data frame:
+
+```{r}
+## first 10 line strings
+(sf_str_f10 <- sf_str %>% 
+  slice(1:10))
+```
+
+Visualize:
+
+```{r}
+mapview(sf_str_f10,
+        color = "steelblue", # line's color
+        legend = FALSE) # disable legend
+```
+
+### Polygon
+
+**Polygons** represent areas such as lakes, parks, or country boundaries.
+A polygon is formed by a closed sequence of lines that define its perimeter, allowing it to enclose a space and have both area and shape.
+As an example, we’ll use county-level polygon data from North Carolina.
+Recall that `data/sf_nc_county.rds` was exported in Section \@ref(readexport-vector-data):
+
+```{r}
+(sf_nc_county <- readRDS("data/sf_nc_county.rds"))
+```
+
+In the geometry column, you’ll notice the notation `MULTIPOLYGON`, which indicates that each feature consists of one or more connected polygons.
+These are classified as polygon vectors in GIS and are commonly used to represent areas with defined boundaries.
+Let’s visualize these polygons as well:
+
+```{r}
+mapview(sf_nc_county,
+        col.regions = "grey", # polygon's fill color
+        legend = FALSE) # disable legend
+```
+
+Just like point/line features, we can use `dplyr::slice()` function to select a given set of counties; however, let's use the `filter()` function here, as `sf_nc_county` object contains column county that specifies county name.
+For example, we can choose the Guilford county just like a regular data frame:
+
+```{r}
+(sf_nc_gi <- sf_nc_county %>% 
+  filter(county == "guilford"))
+```
+
+Visualize:
+
+```{r}
+mapview(sf_nc_gi,
+        col.regions = "grey", # polygon's fill color
+        legend = FALSE) # disable legend
+```
+
+### Mapping vector data
+
+To visualize various types of vector data together, we can use the `ggplot2` package with its `geom_sf()` function, which natively supports spatial features.
+
+We’ll start by plotting just the **polygon layer** to show the county boundaries:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_county)
+```
+
+Next, we add the line layer, which represents stream networks, on top of the county polygons:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_county) +
+  geom_sf(data = sf_str)
+```
+
+Finally, we add the point layer to the map, which marks the survey sites.
+This completes the map by showing all three vector types together:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_county) +
+  geom_sf(data = sf_str) +
+  geom_sf(data = sf_site)
+```
+
+### Exercise
+
+1.  **Read stream line data for Ashe county** (ref: Section \@ref(readexport-vector-data))
+
+    -   Load the stream line data file `sf_stream_as.rds` located in the `data` folder.
+        *Use `readRDS()`.*
+
+    -   Assign the loaded object to `sf_str_as`.
+
+2.  **Check coordinate reference systems (CRS)** (ref: Section \@ref(readexport-vector-data))
+
+    -   Print objects tocheck the CRS for both `sf_str_as` and `sf_nc_county`.
+
+    -   Determine whether they share the same CRS.
+
+3.  **Export to GeoPackage format** (ref: Section \@ref(readexport-vector-data))
+
+    -   Save `sf_str_as` as a GeoPackage file named `sf_stream_as.gpkg` in the `data` folder. Use `sf::st_write()`.
+
+4.  **Map streams and county boundaries** (ref: Section \@ref(mapping-vector-data))
+
+    -   Create a map displaying both: North Carolina county boundaries from `sf_nc_county`, and Ashe County stream lines from `sf_str_as`. Use `ggplot2::ggplot()` with multiple `geom_sf()` layers.
+
+5.  **Subset county layer to Ashe county and remap** (ref: Section \@ref(polygon) and Section \@ref(mapping-vector-data))
+
+    -   Subset the `sf_nc_county` object to include only Ashe County.
+        Use `dplyr::filter()` for subsetting.
+        Assign the result to `sf_nc_as`.
+
+    -   Then, recreate the map showing only `sf_nc_as` and `sf_str_as`.
+
+## Vector Data Manipulation
+
+### Spatial join
+
+While the map we created earlier provides a good overview, it may appear odd because the stream network is only available for Guilford County, yet the other layers (such as survey sites and county boundaries) span the entire state.
+To better align the spatial representation, we might want to focus on Guilford County across all layers.
+
+To narrow down the survey sites to only those that fall within Guilford County, we can use the `sf::st_join()` function from the `sf` package.
+This function performs a spatial join, associating attributes from one layer (e.g., counties) to another (e.g., point locations) based on their geographic overlap.
+
+Here, we overlay `sf_site` (survey sites) with `sf_nc_county` (county polygons) to attach county information to each point:
+
+```{r}
+sf_site_join <- st_join(x = sf_site, # base layer
+                        y = sf_nc_county) # overlaying layer
+```
+
+In the original `sf_site` data, there was no column identifying the county for each site:
+
+```{r}
+print(sf_site)
+```
+
+After running `st_join()`, the resulting object `sf_site_join` now includes additional attributes from the county layer (the `county` column):
+
+```{r}
+print(sf_site_join)
+```
+
+This column isn’t randomly assigned; it reflects the actual geographic relationship: each survey site inherits the attributes of the county polygon it falls within, based on spatial coordinates.
+
+Now that each survey site has a county identifier, we can easily subset the points located within Guilford County using familiar `tidyverse` syntax:
+
+```{r}
+sf_site_guilford <- sf_site_join %>% 
+  filter(county == "guilford")
+```
+
+We can also extract just the Guilford County polygon from the full county dataset:
+
+```{r}
+sf_nc_guilford <- sf_nc_county %>% 
+  filter(county == "guilford")
+```
+
+With these filtered layers, we can re-create the map -- this time focusing exclusively on Guilford County and its associated stream network and survey sites:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_guilford) +
+  geom_sf(data = sf_str) +
+  geom_sf(data = sf_site_guilford) +
+  theme_bw()
+```
+
+If we wish, we can customize the colors of each layer and apply a clean base theme to enhance the appearance:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_guilford) +
+  geom_sf(data = sf_str,
+          color = "steelblue") +
+  geom_sf(data = sf_site_guilford,
+          color = "salmon") +
+  theme_bw()
+```
+
+### Geometric analysis
+
+In vector data analysis, we can perform various geometric operations such as calculating the length of polylines or the area of polygons.
+However, it’s important to ensure that the data is using an appropriate CRS because geometric computations assume that features are laid out in a flat, two-dimensional space -- **geodetic CRS should not be used**.
+In most cases, it is recommended to transform the data to a projected CRS that is suitable for the region of interest.
+
+#### Length {.unnumbered}
+
+To calculate the length of polylines, we can use the `sf::st_length()` function.
+Before doing so, it's important to transform the data to a projected CRS.
+In this case, we'll use `WGS 84 / UTM Zone 17N (EPSG:32617)`, which is appropriate for our sample data (North Carolina, USA).
+We can use `st_transform()` to reproject the spatial object `sf_str` to the UTM Zone 17N coordinate reference system (`EPSG:32617`).
+
+```{r}
+(sf_str_proj <- st_transform(sf_str, crs = 32617))
+```
+
+This transformation ensures that length calculations are performed in meters.
+
+```{r}
+v_str_l <- st_length(sf_str_proj)
+
+# print the first 10 elements
+head(v_str_l)
+```
+
+The object `v_str_l` contains the length of each stream segment, in the same order as the features in `sf_str_proj`.
+We can attach them directly to the spatial object as a new column using `dplyr::mutate()`.
+This allows us to retain both the geometry and the calculated lengths within a single data frame structure.
+
+```{r}
+
+(sf_str_w_len <- sf_str %>% 
+  mutate(length = v_str_l))
+
+```
+
+Now, each feature in `sf_str_w_len` includes its corresponding length as an attribute, making it easier to visualize or analyze within the same spatial object.
+
+Alternatively, this process can be done in a single step by combining `mutate()` and `st_length()` directly.
+
+```{r, eval = FALSE}
+sf_str_w_len <- sf_str %>% 
+  st_transform(crs = 32617) %>%       # transform to projected CRS (utm zone 17n) for accurate length calculation
+  mutate(length = st_length(.)) %>%   # calculate length of each feature and store it in a new column
+  st_transform(crs = 4326)           # transform back to geographic CRS (wgs84) for consistency with other layers
+
+# # the above code returns identical results with the code below
+# sf_str_proj <- st_transform(sf_str, crs = 32617)
+# v_str_l <- st_length(sf_str_proj)               
+# sf_str <- sf_str %>% 
+#   mutate(length = v_str_l)                      
+```
+
+#### Area {.unnumbered}
+
+The area of polygons can be calculated in a similar manner using the `sf::st_area()` function.
+Again, do not forget CRS transformation before performing geometric calculations.
+
+```{r}
+(sf_nc_county_proj <- st_transform(sf_nc_county, crs = 32617))
+```
+
+Then, apply `st_area()` to the projected polygon data:
+
+```{r}
+v_area <- st_area(sf_nc_county)
+
+# print the first 10 elements
+head(v_area)
+```
+
+As we saw in the example of stream polylines, the object `v_area` contains the area of each county.
+Let's attach them directly to the spatial object as a new column using `dplyr::mutate()` again.
+
+```{r}
+
+(sf_nc_county_w_area <- sf_nc_county %>% 
+  mutate(area = v_area))
+
+```
+
+Good, now each feature in `sf_nc_county_w_area` includes its corresponding area as an attribute.
+This process can be done in a single step as well.
+
+```{r, eval = FALSE}
+(sf_nc_county_w_area <- sf_nc_county %>% 
+  st_transform(crs = 32617) %>%       # transform to projected CRS (utm zone 17n) for accurate area calculation
+  mutate(area = st_area(.)) %>%       # calculate area of each polygon and store it in a new column
+  st_transform(crs = 4326))           # transform back to geographic CRS (wgs84) for consistency with other layers
+```
+
+#### Filter by geometric attributes {.unnumbered}
+
+We can subset geometries by their attributes.
+The class `sf` allows you to subset data using familiar functions in `tidyverse`, such as `filter()`.
+
+The following R code filters spatial features in the `sf_nc_county_w_area` dataset to retain only those North Carolina counties with an area greater than 1,000 square kilometers.
+First, it converts the `area` column (which is in square meters) into square kilometers by dividing each value by 1,000,000 (`1e+6`).
+Then, it filters the data to include only counties whose converted area exceeds 1,000, and stores the result in a new object called `sf_nc_county_1000`.
+
+```{r}
+(sf_nc_county_1000 <- sf_nc_county_w_area %>% 
+  mutate(area = as.numeric(area) / 1e+6) %>% 
+  filter(area > 1000))
+```
+
+Visualize:
+
+```{r}
+ggplot() +
+  geom_sf(data = sf_nc_county_1000) +
+  theme_bw()
+```
+
+### Exercise
+
+1.  **Spatial join of survey sites and counties** (ref: Section \@ref(spatial-join))
+
+    -   Load `sf_site_deq.rds` from the `data` folder using `readRDS()`.
+        This file should have been created through the exercise in Chapter \@ref(coordinate-systems).
+
+    -   Assign the loaded object to `sf_site_deq`.
+
+    -   Perform a spatial join between the survey site object `sf_site_deq` and the North Carolina county object `sf_nc_county`.
+
+    -   Assign the resulting joined object to `sf_site_deq_join`.
+
+2.  **Count survey sites per county** (ref: [group operation](https://aterui.github.io/biostats/data-manipulation.html#group-operation))
+
+    -   Using `sf_site_join`, calculate the number of survey sites in each county.
+        Use `dplyr::group_by()` to group by `county`.
+
+    -   Then use `dplyr::summarize()` to create a new column `n` containing the count of survey sites.
+        Assign the resulting object to `sf_n_site`.
+
+3.  **Subset counties with more than ten sites** (ref: Section \@ref(vector-data-manipulation))
+
+    -   From `sf_n_site`, retain only counties with more than 10 survey sites using `dplyr::filter()`.
+
+    -   Assign the subsetted object to `sf_n10`.
+
+4.  **Visualize the distribution on a stacked map** (ref: Section \@ref(mapping-vector-data))
+
+    -   Create a layered (stacked) map showing both `sf_n_site` and `sf_n10`.
+
+    -   Plot `sf_n_site` polygons in **grey** to show all counties with at least one site.
+
+    -   Overlay `sf_n3` polygons in **salmon** to highlight counties with more than three sites.

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 1 Repository Setup | R-GIS for Ecology</title>
+<meta name="author" content="Akira Terui">
+<meta name="description" content="In this book, we will use a GitHub-hosted repository to support hands-on activities. To participate fully, you will need a GitHub account and a local copy of the repository on your computer.  1.1...">
+<meta name="generator" content="bookdown 0.40 with bs4_book()">
+<meta property="og:title" content="Chapter 1 Repository Setup | R-GIS for Ecology">
+<meta property="og:type" content="book">
+<meta property="og:description" content="In this book, we will use a GitHub-hosted repository to support hands-on activities. To participate fully, you will need a GitHub account and a local copy of the repository on your computer.  1.1...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 1 Repository Setup | R-GIS for Ecology">
+<meta name="twitter:description" content="In this book, we will use a GitHub-hosted repository to support hands-on activities. To participate fully, you will need a GitHub account and a local copy of the repository on your computer.  1.1...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.8.0/transition.js"></script><script src="libs/bs3compat-0.8.0/tabs.js"></script><script src="libs/bs3compat-0.8.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script><link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet">
+<script src="libs/leaflet-1.3.1/leaflet.js"></script><link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet">
+<script src="libs/proj4-2.6.2/proj4.min.js"></script><script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script><link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
+<script src="libs/leaflet-binding-2.1.1/leaflet.js"></script><script src="libs/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script><script src="libs/leaflet-providers-plugin-2.1.1/leaflet-providers-plugin.js"></script><link href="libs/HomeButton-0.0.1/home-button.css" rel="stylesheet">
+<script src="libs/HomeButton-0.0.1/home-button.js"></script><script src="libs/HomeButton-0.0.1/easy-button-src.min.js"></script><script src="libs/clipboard-0.0.1/setClipboardText.js"></script><link href="libs/mapviewCSS-0.0.1/mapview-popup.css" rel="stylesheet">
+<link href="libs/mapviewCSS-0.0.1/mapview.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">R-GIS for Ecology</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Getting Started</li>
+<li><a class="active" href="repository-setup.html"><span class="header-section-number">1</span> Repository Setup</a></li>
+<li class="book-part">GIS Basic</li>
+<li><a class="" href="coordinate-systems.html"><span class="header-section-number">2</span> Coordinate Systems</a></li>
+<li><a class="" href="vector-data-sf-basics.html"><span class="header-section-number">3</span> Vector Data (sf basics)</a></li>
+<li><a class="" href="raster-data-terra-basics.html"><span class="header-section-number">4</span> Raster Data (terra basics)</a></li>
+<li><a class="" href="vector-raster-interactions.html"><span class="header-section-number">5</span> Vector-Raster Interactions</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="repository-setup" class="section level1" number="1">
+<h1>
+<span class="header-section-number">1</span> Repository Setup<a class="anchor" aria-label="anchor" href="#repository-setup"><i class="fas fa-link"></i></a>
+</h1>
+<p>In this book, we will use a GitHub-hosted repository to support hands-on activities.
+To participate fully, you will need a GitHub account and a local copy of the repository on your computer.</p>
+<div id="github-account" class="section level2" number="1.1">
+<h2>
+<span class="header-section-number">1.1</span> GitHub Account<a class="anchor" aria-label="anchor" href="#github-account"><i class="fas fa-link"></i></a>
+</h2>
+<p>If you’re new to GitHub, start by creating a free account by following the instructions <a href="https://docs.github.com/en/get-started/signing-up-for-github/signing-up-for-a-new-github-account">here</a>.
+I recommend installing <a href="https://desktop.github.com/">GitHub Desktop</a> if you prefer a graphical interface for managing repositories.
+Basic Git/GitHub operations with GitHub Desktop are outlined <a href="https://aterui.github.io/biostats/git-github.html">here</a>.</p>
+<p>If you already have a GitHub account but are unfamiliar with how to fork a repository, proceed to the next section to learn how to fork and clone the repository using GitHub Desktop.</p>
+<p><strong>NOTE: If you’re already comfortable with your own Git workflow, feel free to continue using it—there’s no need to follow the step-by-step guide below.</strong></p>
+</div>
+<div id="how-to-fork-and-clone-the-course-repository" class="section level2" number="1.2">
+<h2>
+<span class="header-section-number">1.2</span> How to Fork and Clone the Course Repository<a class="anchor" aria-label="anchor" href="#how-to-fork-and-clone-the-course-repository"><i class="fas fa-link"></i></a>
+</h2>
+<div id="fork-the-repository-on-github" class="section level3" number="1.2.1">
+<h3>
+<span class="header-section-number">1.2.1</span> Fork the Repository on GitHub<a class="anchor" aria-label="anchor" href="#fork-the-repository-on-github"><i class="fas fa-link"></i></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>Visit the repository: <a href="https://github.com/aterui/cw_rgis" class="uri">https://github.com/aterui/cw_rgis</a>
+</li>
+<li>Click the <strong>“Fork”</strong> button in the top right corner.</li>
+<li>Choose your GitHub account when prompted.</li>
+<li>GitHub will create a forked copy of the repository under your account, e.g., <code>https://github.com/yourusername/cw_rgis</code>.</li>
+</ol>
+</div>
+<div id="clone-your-fork-using-github-desktop" class="section level3" number="1.2.2">
+<h3>
+<span class="header-section-number">1.2.2</span> Clone Your Fork Using GitHub Desktop<a class="anchor" aria-label="anchor" href="#clone-your-fork-using-github-desktop"><i class="fas fa-link"></i></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>Open <strong>GitHub Desktop</strong> (download it from <a href="https://desktop.github.com" class="uri">https://desktop.github.com</a> if needed).</li>
+<li>Ensure you’re signed in with the same GitHub account where you forked the repo.</li>
+<li>Go to <strong>File → Clone Repository…</strong>
+</li>
+<li>Select the <strong>“GitHub.com”</strong> tab.</li>
+<li>Locate your forked repository, which should appear as: <code>yourusername/cw_rgis</code>
+</li>
+<li>Choose a destination folder on your computer.</li>
+<li>Click <strong>“Clone”</strong> to download the repository locally.</li>
+</ol>
+</div>
+<div id="open-the-project-in-rstudio" class="section level3" number="1.2.3">
+<h3>
+<span class="header-section-number">1.2.3</span> Open the Project in RStudio<a class="anchor" aria-label="anchor" href="#open-the-project-in-rstudio"><i class="fas fa-link"></i></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>Navigate to the folder where you cloned the repository.</li>
+<li>Double-click the <code>cw_rgis.Rproj</code> file to launch the project in RStudio.</li>
+</ol>
+</div>
+<div id="summary" class="section level3" number="1.2.4">
+<h3>
+<span class="header-section-number">1.2.4</span> Summary<a class="anchor" aria-label="anchor" href="#summary"><i class="fas fa-link"></i></a>
+</h3>
+<div class="inline-table"><table class="table table-sm">
+<thead><tr class="header">
+<th>Step</th>
+<th>Tool</th>
+<th>Action</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>GitHub (Web)</td>
+<td>Fork the repository to your account</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>GitHub Desktop</td>
+<td>Clone the fork to your computer</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>RStudio</td>
+<td>Open and begin working with the project</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div id="project-folder-structure" class="section level2" number="1.3">
+<h2>
+<span class="header-section-number">1.3</span> Project Folder Structure<a class="anchor" aria-label="anchor" href="#project-folder-structure"><i class="fas fa-link"></i></a>
+</h2>
+<p>The course repository <code>cw_rgis</code> should have the following structure:</p>
+<pre><code>## C:/Users/akira/OneDrive - UNCG/Documents/github/cw_rgis
+## ├── code
+## │   └── tutorial_script.R
+## ├── cw_rgis.Rproj
+## └── data
+##     ├── data_finsync_nc.csv
+##     ├── data_fish_deq.csv
+##     ├── nc.dbf
+##     ├── nc.prj
+##     ├── nc.shp
+##     ├── nc.shx
+##     ├── sf_stream_as.rds
+##     ├── sf_stream_gi.rds
+##     ├── spr_crop_nc.tif
+##     ├── spr_example.tif
+##     ├── spr_forest_nc.tif
+##     ├── spr_prec_ncne.tif
+##     ├── spr_prec_ncnw.tif
+##     ├── spr_prec_ncse.tif
+##     ├── spr_prec_ncsw.tif
+##     ├── spr_prec_us.tif
+##     ├── spr_tmp_nc.tif
+##     ├── spr_tmp_ncne.tif
+##     ├── spr_tmp_ncnw.tif
+##     ├── spr_tmp_ncse.tif
+##     ├── spr_tmp_ncsw.tif
+##     ├── spr_tmp_us.tif
+##     └── spr_urban_nc.tif</code></pre>
+<ul>
+<li><p>The <code>code</code> folder will contain R script files (<code>.R</code>; sample script file is located initially).
+In this course, we will develop and work on scripts separately for each chapter.</p></li>
+<li><p>The <code>data</code> folder contains datasets used in the hands-on activities.
+These data are sourced from publicly available open databases, as described in the Preface.</p></li>
+<li><p>For students enrolled in this course, we will commit and push code changes to Git and GitHub regularly.
+This allows us to track our progress, manage edits, and collaborate effectively.</p></li>
+</ul>
+</div>
+</div>
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="index.html">Preface</a></div>
+<div class="next"><a href="coordinate-systems.html"><span class="header-section-number">2</span> Coordinate Systems</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#repository-setup"><span class="header-section-number">1</span> Repository Setup</a></li>
+<li><a class="nav-link" href="#github-account"><span class="header-section-number">1.1</span> GitHub Account</a></li>
+<li>
+<a class="nav-link" href="#how-to-fork-and-clone-the-course-repository"><span class="header-section-number">1.2</span> How to Fork and Clone the Course Repository</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#fork-the-repository-on-github"><span class="header-section-number">1.2.1</span> Fork the Repository on GitHub</a></li>
+<li><a class="nav-link" href="#clone-your-fork-using-github-desktop"><span class="header-section-number">1.2.2</span> Clone Your Fork Using GitHub Desktop</a></li>
+<li><a class="nav-link" href="#open-the-project-in-rstudio"><span class="header-section-number">1.2.3</span> Open the Project in RStudio</a></li>
+<li><a class="nav-link" href="#summary"><span class="header-section-number">1.2.4</span> Summary</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#project-folder-structure"><span class="header-section-number">1.3</span> Project Folder Structure</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>R-GIS for Ecology</strong>" was written by Akira Terui. It was last built on 2025-08-04.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

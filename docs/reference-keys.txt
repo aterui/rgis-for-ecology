@@ -1,3 +1,11 @@
+repository-setup
+github-account
+how-to-fork-and-clone-the-course-repository
+fork-the-repository-on-github
+clone-your-fork-using-github-desktop
+open-the-project-in-rstudio
+summary
+project-folder-structure
 coordinate-systems
 learning-objectives
 getting-started
@@ -25,7 +33,6 @@ raster-data-in-gis
 raster-data-format
 readexport-raster-data
 mapping-raster-data
-data-type-in-raster-data
 exercise-3
 raster-data-manipulation
 crop

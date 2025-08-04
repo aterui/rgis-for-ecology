@@ -1,0 +1,65 @@
+# (PART) Getting Started {.unnumbered}
+
+# Repository Setup
+
+In this book, we will use a GitHub-hosted repository to support hands-on activities.
+To participate fully, you will need a GitHub account and a local copy of the repository on your computer.
+
+## GitHub Account
+
+If you're new to GitHub, start by creating a free account by following the instructions [here](https://docs.github.com/en/get-started/signing-up-for-github/signing-up-for-a-new-github-account).
+I recommend installing [GitHub Desktop](https://desktop.github.com/) if you prefer a graphical interface for managing repositories.
+Basic Git/GitHub operations with GitHub Desktop are outlined [here](https://aterui.github.io/biostats/git-github.html).
+
+If you already have a GitHub account but are unfamiliar with how to fork a repository, proceed to the next section to learn how to fork and clone the repository using GitHub Desktop.
+
+**NOTE: If you're already comfortable with your own Git workflow, feel free to continue using it—there’s no need to follow the step-by-step guide below.**
+
+## How to Fork and Clone the Course Repository
+
+### Fork the Repository on GitHub
+
+1.  Visit the repository: <https://github.com/aterui/cw_rgis>
+2.  Click the **"Fork"** button in the top right corner.
+3.  Choose your GitHub account when prompted.
+4.  GitHub will create a forked copy of the repository under your account, e.g., `https://github.com/yourusername/cw_rgis`.
+
+### Clone Your Fork Using GitHub Desktop
+
+1.  Open **GitHub Desktop** (download it from <https://desktop.github.com> if needed).
+2.  Ensure you're signed in with the same GitHub account where you forked the repo.
+3.  Go to **File → Clone Repository...**
+4.  Select the **"GitHub.com"** tab.
+5.  Locate your forked repository, which should appear as: `yourusername/cw_rgis`
+6.  Choose a destination folder on your computer.
+7.  Click **"Clone"** to download the repository locally.
+
+### Open the Project in RStudio
+
+1.  Navigate to the folder where you cloned the repository.
+2.  Double-click the `cw_rgis.Rproj` file to launch the project in RStudio.
+
+### Summary
+
+| Step | Tool           | Action                                  |
+|------|----------------|-----------------------------------------|
+| 1    | GitHub (Web)   | Fork the repository to your account     |
+| 2    | GitHub Desktop | Clone the fork to your computer         |
+| 3    | RStudio        | Open and begin working with the project |
+
+## Project Folder Structure
+
+The course repository `cw_rgis` should have the following structure:
+
+```{r, echo = FALSE}
+fs::dir_tree(path = path.expand("~/github/cw_rgis"), recurse = TRUE, type = "any")
+```
+
+-   The `code` folder will contain R script files (`.R`; sample script file is located initially).
+    In this course, we will develop and work on scripts separately for each chapter.
+
+-   The `data` folder contains datasets used in the hands-on activities.
+    These data are sourced from publicly available open databases, as described in the Preface.
+
+-   For students enrolled in this course, we will commit and push code changes to Git and GitHub regularly.
+    This allows us to track our progress, manage edits, and collaborate effectively.

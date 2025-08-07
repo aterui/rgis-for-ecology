@@ -46,8 +46,7 @@ df_cl_table <- tibble(Column = colnames(df_fish),
                                       "Sampling date",
                                       "Longitude",
                                       "Latitude",
-                                      "Scientific name",
-                                      "Presence/absence of a species (1, present; 0, absent)")
+                                      "Scientific name")
                       )
 
 knitr::kable(df_cl_table)
@@ -96,7 +95,7 @@ You may save this object using `saveRDS()` function in R – in doing so, you ca
 
 ```{r, eval = FALSE}
 saveRDS(sf_site,
-        file = "data/sf_nc_county.rds")
+        file = "data/sf_finsync_nc.rds")
 ```
 
 But, heads-up!

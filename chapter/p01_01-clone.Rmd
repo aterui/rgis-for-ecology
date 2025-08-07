@@ -52,7 +52,9 @@ If you already have a GitHub account but are unfamiliar with how to fork a repos
 The course repository `cw_rgis` should have the following structure:
 
 ```{r, echo = FALSE}
-fs::dir_tree(path = path.expand("~/github/cw_rgis"), recurse = TRUE, type = "any")
+fs::dir_tree(path = path.expand("~/github/cw_rgis"), 
+             recurse = TRUE, 
+             type = "any")
 ```
 
 -   The `code` folder will contain R script files (`.R`; sample script file is located initially).

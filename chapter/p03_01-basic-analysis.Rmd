@@ -1,0 +1,252 @@
+# (PART) Ecological Analysis {.unnumbered}
+
+# Species Distribution Modeling
+
+## Learning Objectives
+
+1.  Prepare ecological datasets for species-environment analyses
+
+2.  Integrate GIS-derived environmental variables with species occurrence data
+
+3.  Visualize and analyze relationships between environmental conditions and species distributions
+
+```{r}
+if (!require(pacman)) install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               ggeffects,
+               sf,
+               terra,
+               tidyterra,
+               exactextractr,
+               mapview)
+
+```
+
+## Linking GIS to Ecology
+
+So far, we have covered the fundamentals of GIS, but made only limited connections to ecological data.
+Now that we’ve developed core GIS skills, we are ready to link GIS-derived environmental variables to ecological patterns, such as species occurrence and distribution.
+Here, we’ll dip our toes into Species Distribution Modeling (SDM), a foundational approach in ecological modeling for understanding the relationships between species occurrences and the environment across broad spatial scales.
+
+For this exercise, let's use the fish data from [finsyncR](https://usepa.github.io/finsyncR/):
+
+```{r}
+
+(df_finsync <- read_csv("data/data_finsync_nc.csv"))
+```
+
+As outlined in Chapter \@ref(coordinate-systems), this dataset contains records of fish species observed at survey sites across North Carolina.
+To better understand the structure of the data, let’s examine the first survey site (`site_id == "finsync_nrs_nc-10013"`):
+
+```{r}
+
+(df_st1 <- df_finsync %>% 
+  filter(site_id == "finsync_nrs_nc-10013"))
+```
+
+The dataset follows the "tidy" data format, where each column contains a single type of information and each row represents a single observation (see [here](%5Bhere%5D(https://r4ds.hadley.nz/data-tidy.html)) for more details).
+While this format is recommended for the initial data entry, it sometimes inconvenient for data analysis - in what follows, let me walk you through how we convert it to an analysis-ready format.
+
+### Preparing ecological data
+
+As an example, let’s model the distribution of a single species from our dataset as a function of air temperature—specifically, how the probability of occurrence changes along a temperature gradient.
+This is the question we aim to address through SDM, and the following exercise is designed to achieve this aim.
+
+**The first step is data wrangling.** Ecological datasets are often not in an analysis-ready format, and ours is no exception.
+In this dataset, we know which species were present at each survey site, but absence is not explicitly recorded; species simply do not appear in the data for sites where they were not observed.
+
+To model a species’ response to environmental conditions, we need to compare sites where the species was observed to those where it was absent.
+This contrast enables us to estimate how environmental variables—like air temperature—influence the probability of species occurrence.
+Therefore, we must reshape the dataset to include complete presence/absence information for a single species across all survey sites.
+
+The goal is to create a dataframe listing species presence/absence across all survey sites.
+To make it clear that each row represents a presence record, let me add a column of "presence" – then we'll use the function `dplyr::pivot_wider()` to complete this task:
+
+```{r}
+df_finsync %>% 
+  mutate(presence = 1) %>% # all recorded species are "presence" = 1
+  pivot_wider(id_cols = c(site_id, lon, lat),
+              names_from = latin,
+              values_from = presence)
+```
+
+In this case, we set `id_cols = c(site_id, lon, lat)`, `names_from = latin`, and `values_from = presence`.
+By setting these arguments, the function will return a dataframe where each row represents a survey site (a unique combination of `site_id`, `lon`, and `lat`), each column corresponds to a unique species, and the cell values indicate whether each species was present (`1`) or absent (`NA`) at that site.
+
+When species are not recorded at a given site, the function returns `NA` because there is no such combination of species and site in the original data – however, for the purpose of statistical modeling, we want to treat these as zeros (= absence).
+An additional argument, `values_fill = 0`, will achieve this by filling all `NA` values in the output dataframe with `0`, allowing us to interpret the data as complete presence/absence records across all sites and species.
+
+```{r}
+df_finsync %>% 
+  mutate(presence = 1) %>% # all recorded species are "presence" = 1
+  pivot_wider(id_cols = c(site_id, lon, lat),
+              names_from = latin,
+              values_from = presence,
+              values_fill = 0)
+```
+
+Lastly, let’s focus on a single species for this exercise.
+We’ll extract the presence/absence information for **Redbreast Sunfish (Lepomis auritus)** along with the corresponding `site_id` and longitude (`lon`) / latitude (`lat`).
+This subset will serve as the response variable in our upcoming analysis, allowing us to examine how environmental conditions shape the distribution of this focal species across the survey sites.
+
+```{r}
+## assign df_rbs
+(df_rbs <- df_finsync %>% 
+  mutate(presence = 1) %>% # all recorded species are "presence" = 1
+  pivot_wider(id_cols = c(site_id, lon, lat),
+              names_from = latin,
+              values_from = presence,
+              values_fill = 0) %>% 
+  select(site_id,
+         lon,
+         lat,
+         "Lepomis auritus") %>% 
+  rename(y = "Lepomis auritus")) # rename column "Lepomis auritus" to y
+```
+
+### Linking to the environment
+
+To see the influence of air temperature on fish distribution (assuming that it influences fish via changes in water temperature), we need to tie the occurrence dataframe `df_rbs` to air temperature at each survey site.
+To perform this, we’ll use the **point-wise extraction method** introduced in Chapter \@ref(vector-raster-interactions).
+
+This method requires an `sf` object containing the spatial coordinates of each survey site, because spatial extraction (e.g., using `terra::extract()`) operates on geometries.
+So first, we’ll create an `sf` object listing **unique site coordinates** along with `site_id`.
+Here’s a code example that outlines this step:
+
+```{r}
+sf_rbs <- df_rbs %>% 
+  st_as_sf(coords = c("lon", "lat"),
+           crs = 4326)
+```
+
+Point-wise extraction can be done with the procedure outlined in Section \@ref(point-wise-extraction) in Chapter \@ref(vector-raster-interactions).
+This allows us to extract raster values—such as air temperature—at the locations of our survey sites.
+
+To begin, we’ll read the raster layer that contains air temperature data, then use the `terra::extract()` function to obtain values at each survey site using the `sf` object we created earlier.
+
+```{r}
+## read temperature raster
+spr_tmp_nc <- rast("data/spr_tmp_nc.tif")
+
+## extract values at the survey sites
+(sf_rbs_tmp <- extract(x = spr_tmp_nc,
+                       y = sf_rbs,
+                       bind = TRUE) %>% 
+   st_as_sf())
+```
+
+For analysis, it's convenient to have the data in **tibble format**, especially since the geometry column from the `sf` object is not needed for statistical modeling.
+We can easily convert the spatial object to a regular tibble using `tidyr::as_tibble()`, which drops the geospatial infromation by default (e.g., CRS).
+
+```{r}
+(df_rbs_tmp <- as_tibble(sf_rbs_tmp) %>% 
+  select(-geometry))
+```
+
+### Visualization
+
+Visualization helps us understand how the focal species is distributed across space and whether its occurrence relates to environmental conditions like air temperature.
+To do this, we’ll map species distribution on top of the air temperature raster using the `ggplot()` framework.
+
+```{r}
+ggplot() +
+  # Add the air temperature raster layer as a background map
+  geom_spatraster(data = spr_tmp_nc) + 
+  # Overlay survey sites (sf object), colored by presence (1) or absence (0) of Redbreast Sunfish
+  geom_sf(data = sf_rbs,
+          aes(color = factor(y))) + 
+  # Use a perceptually uniform color scale for the raster layer
+  scale_fill_viridis_c() +   
+  # Apply a clean black-and-white theme for better contrast and readability
+  theme_bw()   
+```
+
+In a different format, we can directly plot the relationship between species occurrence and air temperature using a scatter plot (or other types of plot).
+This type of visualization helps reveal how the probability of species presence varies across an environmental gradient—in this case, air temperature:
+
+```{r}
+df_rbs_tmp %>%
+  # Start ggplot using temperature as x and species presence/absence as y
+  ggplot(aes(y = y, 
+             x = temperature)) +
+  # Add individual points for each survey site
+  geom_point() +
+  # Apply a clean black-and-white theme for readability
+  theme_bw()
+```
+
+It seems like Redbreast Sunfish occurs more often at warmer sites, suggesting a potential positive relationship between air temperature (as a proxy for water temperature) and species presence.
+
+### Analysis
+
+Visual inspection suggests a potential positive relationship between species occurrence and air temperature.
+But how do we know whether this pattern is real—or just due to chance?
+This is where statistical analysis becomes essential: it allows us to assess whether the observed relationship is unlikely to have occurred by random chance.
+While this book does not provide a comprehensive introduction to statistical theory, we will use the [Generalized Linear Model (GLM)](https://aterui.github.io/biostats/generalized-linear-model.html) framework to analyze our dataset.
+Specifically, we will fit a **Binomial** **regression model**[^p03_01-basic-analysis-1] to evaluate the statistical influence of air temperature on the distribution of Redbreast Sunfish.
+
+[^p03_01-basic-analysis-1]: Technically, a Bernoulli regression in this case
+
+```{r}
+(m <- glm(y ~ temperature,
+          data = df_rbs_tmp,
+          family = "binomial"))
+```
+
+The code `glm(y ~ temperature, data = df_rbs_tmp, family = "binomial")` fits a GLM to the data to examine the relationship between air temperature and the occurrence of Redbreast Sunfish.
+In this model, `y` is a binary response variable indicating species presence (`1`) or absence (`0`), while `temperature` is the explanatory variable.
+The `data` argument specifies the dataset being used (`df_rbs_tmp`), and the model formula (`y ~ temperature`) defines how the response depends on the predictor.
+
+By setting `family = "binomial"`, the model assumes that the response variable follows a **binomial distribution**, which is appropriate for binary outcomes.
+This results in a **logistic regression**, where the model estimates the log-odds of species occurrence as a linear function of temperature.
+The coefficients obtained from this model help us determine whether temperature has a statistically significant influence on species presence, beyond what we might expect from random variation alone.
+
+The `summary()` function provides deeper insights:
+
+```{r}
+summary(m)
+```
+
+This output summarizes the results of a **logistic regression** assessing the effect of air temperature on the occurrence of Redbreast Sunfish.
+
+The model includes an intercept and one predictor, `temperature`.
+The **intercept estimate** is `-5.8651`, representing the log-odds of occurrence when temperature is zero (which may be outside the actual data range, so it's not always biologically interpretable).
+The **coefficient for temperature** is `0.4583`, meaning that for each 1-unit increase in air temperature, the log-odds of species presence increase by `0.4583`.
+This translates to a higher probability of observing the species at warmer sites.
+Both coefficients are statistically significant, with p-values well below 0.01 (`0.00576` for the intercept and `0.00122` for temperature), indicating that **the effect of temperature is unlikely due to random chance**.
+
+In this simplified case, we can easily visualize the model predictions using `ggeffects::ggpredict()`:
+
+```{r}
+df_pred <- ggpredict(m,
+                     terms = "temperature [all]")
+
+ggplot() +
+  geom_point(data = df_rbs_tmp,
+             aes(x = temperature,
+                 y = y)) +
+  geom_line(data = df_pred,
+            aes(x = x,
+                y = predicted)) +
+  geom_ribbon(data = df_pred,
+              aes(x = x,
+                  ymin = conf.low,
+                  ymax = conf.high),
+              fill = "grey",
+              alpha = 0.2) +
+  labs(x = "Air temperature",
+       y = "Probability of occurrence") +
+  theme_bw()
+
+```
+
+This code generates a plot showing the predicted relationship between air temperature and the probability of Redbreast Sunfish occurrence, based on a logistic regression model.
+The function `ggpredict()` is used with the argument `terms = "temperature [all]"`, which computes predictions for every observed value of temperature in the dataset, ensuring a smooth and data-aligned prediction curve.
+
+In the plot, each point represents an observation from the original dataset (`df_rbs_tmp`), showing where the species was present (`y = 1`) or absent (`y = 0`).
+The black line shows the model-predicted probability of occurrence across the temperature gradient, while the shaded ribbon represents the 95% confidence interval around the prediction.
+
+This result aligns well with ecological expectations—Redbreast Sunfish is a warm-water species known to prefer higher temperatures.
+The positive and statistically significant effect of air temperature on species occurrence supports this ecological knowledge.
+In other words, the statistical model confirms that Redbreast Sunfish are more likely to be found at warmer sites, validating the anticipated distributional response to air temperature.

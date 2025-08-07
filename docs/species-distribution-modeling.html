@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 6 Species Distribution Modeling | R-GIS for Ecology</title>
+<meta name="author" content="Akira Terui">
+<meta name="description" content="6.1 Learning Objectives Prepare ecological datasets for species-environment analyses Integrate GIS-derived environmental variables with species occurrence data Visualize and analyze relationships...">
+<meta name="generator" content="bookdown 0.40 with bs4_book()">
+<meta property="og:title" content="Chapter 6 Species Distribution Modeling | R-GIS for Ecology">
+<meta property="og:type" content="book">
+<meta property="og:description" content="6.1 Learning Objectives Prepare ecological datasets for species-environment analyses Integrate GIS-derived environmental variables with species occurrence data Visualize and analyze relationships...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 6 Species Distribution Modeling | R-GIS for Ecology">
+<meta name="twitter:description" content="6.1 Learning Objectives Prepare ecological datasets for species-environment analyses Integrate GIS-derived environmental variables with species occurrence data Visualize and analyze relationships...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.8.0/transition.js"></script><script src="libs/bs3compat-0.8.0/tabs.js"></script><script src="libs/bs3compat-0.8.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script><link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet">
+<script src="libs/leaflet-1.3.1/leaflet.js"></script><link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet">
+<script src="libs/proj4-2.6.2/proj4.min.js"></script><script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script><link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
+<script src="libs/leaflet-binding-2.1.1/leaflet.js"></script><script src="libs/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script><script src="libs/leaflet-providers-plugin-2.1.1/leaflet-providers-plugin.js"></script><link href="libs/HomeButton-0.0.1/home-button.css" rel="stylesheet">
+<script src="libs/HomeButton-0.0.1/home-button.js"></script><script src="libs/HomeButton-0.0.1/easy-button-src.min.js"></script><script src="libs/clipboard-0.0.1/setClipboardText.js"></script><link href="libs/mapviewCSS-0.0.1/mapview-popup.css" rel="stylesheet">
+<link href="libs/mapviewCSS-0.0.1/mapview.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">R-GIS for Ecology</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Getting Started</li>
+<li><a class="" href="repository-setup.html"><span class="header-section-number">1</span> Repository Setup</a></li>
+<li class="book-part">GIS Basic</li>
+<li><a class="" href="coordinate-systems.html"><span class="header-section-number">2</span> Coordinate Systems</a></li>
+<li><a class="" href="vector-data-sf-basics.html"><span class="header-section-number">3</span> Vector Data (sf basics)</a></li>
+<li><a class="" href="raster-data-terra-basics.html"><span class="header-section-number">4</span> Raster Data (terra basics)</a></li>
+<li><a class="" href="vector-raster-interactions.html"><span class="header-section-number">5</span> Vector-Raster Interactions</a></li>
+<li class="book-part">Ecological Analysis</li>
+<li><a class="active" href="species-distribution-modeling.html"><span class="header-section-number">6</span> Species Distribution Modeling</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="species-distribution-modeling" class="section level1" number="6">
+<h1>
+<span class="header-section-number">6</span> Species Distribution Modeling<a class="anchor" aria-label="anchor" href="#species-distribution-modeling"><i class="fas fa-link"></i></a>
+</h1>
+<div id="learning-objectives-4" class="section level2" number="6.1">
+<h2>
+<span class="header-section-number">6.1</span> Learning Objectives<a class="anchor" aria-label="anchor" href="#learning-objectives-4"><i class="fas fa-link"></i></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li><p>Prepare ecological datasets for species-environment analyses</p></li>
+<li><p>Integrate GIS-derived environmental variables with species occurrence data</p></li>
+<li><p>Visualize and analyze relationships between environmental conditions and species distributions</p></li>
+</ol>
+<div class="sourceCode" id="cb124"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/trinker/pacman">pacman</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"pacman"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">pacman</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pacman/man/p_load.html">p_load</a></span><span class="op">(</span><span class="va">tidyverse</span>,</span>
+<span>               <span class="va">ggeffects</span>,</span>
+<span>               <span class="va">sf</span>,</span>
+<span>               <span class="va">terra</span>,</span>
+<span>               <span class="va">tidyterra</span>,</span>
+<span>               <span class="va">exactextractr</span>,</span>
+<span>               <span class="va">mapview</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div id="linking-gis-to-ecology" class="section level2" number="6.2">
+<h2>
+<span class="header-section-number">6.2</span> Linking GIS to Ecology<a class="anchor" aria-label="anchor" href="#linking-gis-to-ecology"><i class="fas fa-link"></i></a>
+</h2>
+<p>So far, we have covered the fundamentals of GIS, but made only limited connections to ecological data.
+Now that we’ve developed core GIS skills, we are ready to link GIS-derived environmental variables to ecological patterns, such as species occurrence and distribution.
+Here, we’ll dip our toes into Species Distribution Modeling (SDM), a foundational approach in ecological modeling for understanding the relationships between species occurrences and the environment across broad spatial scales.</p>
+<p>For this exercise, let’s use the fish data from <a href="https://usepa.github.io/finsyncR/">finsyncR</a>:</p>
+<div class="sourceCode" id="cb125"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">df_finsync</span> <span class="op">&lt;-</span> <span class="fu">read_csv</span><span class="op">(</span><span class="st">"data/data_finsync_nc.csv"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## # A tibble: 1,426 × 6
+##    site_id               year date         lon   lat latin                  
+##    &lt;chr&gt;                &lt;dbl&gt; &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;                  
+##  1 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Clinostomus funduloides
+##  2 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Etheostoma flabellare  
+##  3 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Hybopsis hypsinotus    
+##  4 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Lepomis auritus        
+##  5 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Moxostoma rupiscartes  
+##  6 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Nocomis leptocephalus  
+##  7 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Notropis chiliticus    
+##  8 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Semotilus atromaculatus
+##  9 finsync_nrs_nc-10014  2009 2009-06-03 -80.4  35.9 Clinostomus funduloides
+## 10 finsync_nrs_nc-10014  2009 2009-06-03 -80.4  35.9 Fundulus rathbuni      
+## # ℹ 1,416 more rows</code></pre>
+<p>As outlined in Chapter <a href="coordinate-systems.html#coordinate-systems">2</a>, this dataset contains records of fish species observed at survey sites across North Carolina.
+To better understand the structure of the data, let’s examine the first survey site (<code>site_id == "finsync_nrs_nc-10013"</code>):</p>
+<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">df_st1</span> <span class="op">&lt;-</span> <span class="va">df_finsync</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">site_id</span> <span class="op">==</span> <span class="st">"finsync_nrs_nc-10013"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## # A tibble: 8 × 6
+##   site_id               year date         lon   lat latin                  
+##   &lt;chr&gt;                &lt;dbl&gt; &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;                  
+## 1 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Clinostomus funduloides
+## 2 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Etheostoma flabellare  
+## 3 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Hybopsis hypsinotus    
+## 4 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Lepomis auritus        
+## 5 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Moxostoma rupiscartes  
+## 6 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Nocomis leptocephalus  
+## 7 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Notropis chiliticus    
+## 8 finsync_nrs_nc-10013  2009 2009-06-27 -81.5  36.1 Semotilus atromaculatus</code></pre>
+<p>The dataset follows the “tidy” data format, where each column contains a single type of information and each row represents a single observation (see <a href="%5Bhere%5D(https://r4ds.hadley.nz/data-tidy.html)">here</a> for more details).
+While this format is recommended for the initial data entry, it sometimes inconvenient for data analysis - in what follows, let me walk you through how we convert it to an analysis-ready format.</p>
+<div id="preparing-ecological-data" class="section level3" number="6.2.1">
+<h3>
+<span class="header-section-number">6.2.1</span> Preparing ecological data<a class="anchor" aria-label="anchor" href="#preparing-ecological-data"><i class="fas fa-link"></i></a>
+</h3>
+<p>As an example, let’s model the distribution of a single species from our dataset as a function of air temperature—specifically, how the probability of occurrence changes along a temperature gradient.
+This is the question we aim to address through SDM, and the following exercise is designed to achieve this aim.</p>
+<p><strong>The first step is data wrangling.</strong> Ecological datasets are often not in an analysis-ready format, and ours is no exception.
+In this dataset, we know which species were present at each survey site, but absence is not explicitly recorded; species simply do not appear in the data for sites where they were not observed.</p>
+<p>To model a species’ response to environmental conditions, we need to compare sites where the species was observed to those where it was absent.
+This contrast enables us to estimate how environmental variables—like air temperature—influence the probability of species occurrence.
+Therefore, we must reshape the dataset to include complete presence/absence information for a single species across all survey sites.</p>
+<p>The goal is to create a dataframe listing species presence/absence across all survey sites.
+To make it clear that each row represents a presence record, let me add a column of “presence” – then we’ll use the function <code>dplyr::pivot_wider()</code> to complete this task:</p>
+<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df_finsync</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>presence <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="co"># all recorded species are "presence" = 1</span></span>
+<span>  <span class="fu">pivot_wider</span><span class="op">(</span>id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">site_id</span>, <span class="va">lon</span>, <span class="va">lat</span><span class="op">)</span>,</span>
+<span>              names_from <span class="op">=</span> <span class="va">latin</span>,</span>
+<span>              values_from <span class="op">=</span> <span class="va">presence</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## # A tibble: 122 × 133
+##    site_id               lon   lat Clinostomus funduloi…¹ Etheostoma flabellar…²
+##    &lt;chr&gt;               &lt;dbl&gt; &lt;dbl&gt;                  &lt;dbl&gt;                  &lt;dbl&gt;
+##  1 finsync_nrs_nc-100… -81.5  36.1                      1                      1
+##  2 finsync_nrs_nc-100… -80.4  35.9                      1                     NA
+##  3 finsync_nrs_nc-100… -81.7  35.6                      1                      1
+##  4 finsync_nrs_nc-100… -82.8  35.7                     NA                      1
+##  5 finsync_nrs_nc-100… -77.8  35.4                     NA                     NA
+##  6 finsync_nrs_nc-100… -83.7  35.0                     NA                     NA
+##  7 finsync_nrs_nc-100… -80.7  35.2                      1                     NA
+##  8 finsync_nrs_nc-100… -82.0  36.1                     NA                     NA
+##  9 finsync_nrs_nc-100… -80.5  35.0                     NA                      1
+## 10 finsync_nrs_nc-100… -78.0  34.6                     NA                     NA
+## # ℹ 112 more rows
+## # ℹ abbreviated names: ¹​`Clinostomus funduloides`, ²​`Etheostoma flabellare`
+## # ℹ 128 more variables: `Hybopsis hypsinotus` &lt;dbl&gt;, `Lepomis auritus` &lt;dbl&gt;,
+## #   `Moxostoma rupiscartes` &lt;dbl&gt;, `Nocomis leptocephalus` &lt;dbl&gt;,
+## #   `Notropis chiliticus` &lt;dbl&gt;, `Semotilus atromaculatus` &lt;dbl&gt;,
+## #   `Fundulus rathbuni` &lt;dbl&gt;, `Ambloplites rupestris` &lt;dbl&gt;,
+## #   `Campostoma anomalum` &lt;dbl&gt;, `Catostomus commersonii` &lt;dbl&gt;, …</code></pre>
+<p>In this case, we set <code>id_cols = c(site_id, lon, lat)</code>, <code>names_from = latin</code>, and <code>values_from = presence</code>.
+By setting these arguments, the function will return a dataframe where each row represents a survey site (a unique combination of <code>site_id</code>, <code>lon</code>, and <code>lat</code>), each column corresponds to a unique species, and the cell values indicate whether each species was present (<code>1</code>) or absent (<code>NA</code>) at that site.</p>
+<p>When species are not recorded at a given site, the function returns <code>NA</code> because there is no such combination of species and site in the original data – however, for the purpose of statistical modeling, we want to treat these as zeros (= absence).
+An additional argument, <code>values_fill = 0</code>, will achieve this by filling all <code>NA</code> values in the output dataframe with <code>0</code>, allowing us to interpret the data as complete presence/absence records across all sites and species.</p>
+<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df_finsync</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>presence <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="co"># all recorded species are "presence" = 1</span></span>
+<span>  <span class="fu">pivot_wider</span><span class="op">(</span>id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">site_id</span>, <span class="va">lon</span>, <span class="va">lat</span><span class="op">)</span>,</span>
+<span>              names_from <span class="op">=</span> <span class="va">latin</span>,</span>
+<span>              values_from <span class="op">=</span> <span class="va">presence</span>,</span>
+<span>              values_fill <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## # A tibble: 122 × 133
+##    site_id               lon   lat Clinostomus funduloi…¹ Etheostoma flabellar…²
+##    &lt;chr&gt;               &lt;dbl&gt; &lt;dbl&gt;                  &lt;dbl&gt;                  &lt;dbl&gt;
+##  1 finsync_nrs_nc-100… -81.5  36.1                      1                      1
+##  2 finsync_nrs_nc-100… -80.4  35.9                      1                      0
+##  3 finsync_nrs_nc-100… -81.7  35.6                      1                      1
+##  4 finsync_nrs_nc-100… -82.8  35.7                      0                      1
+##  5 finsync_nrs_nc-100… -77.8  35.4                      0                      0
+##  6 finsync_nrs_nc-100… -83.7  35.0                      0                      0
+##  7 finsync_nrs_nc-100… -80.7  35.2                      1                      0
+##  8 finsync_nrs_nc-100… -82.0  36.1                      0                      0
+##  9 finsync_nrs_nc-100… -80.5  35.0                      0                      1
+## 10 finsync_nrs_nc-100… -78.0  34.6                      0                      0
+## # ℹ 112 more rows
+## # ℹ abbreviated names: ¹​`Clinostomus funduloides`, ²​`Etheostoma flabellare`
+## # ℹ 128 more variables: `Hybopsis hypsinotus` &lt;dbl&gt;, `Lepomis auritus` &lt;dbl&gt;,
+## #   `Moxostoma rupiscartes` &lt;dbl&gt;, `Nocomis leptocephalus` &lt;dbl&gt;,
+## #   `Notropis chiliticus` &lt;dbl&gt;, `Semotilus atromaculatus` &lt;dbl&gt;,
+## #   `Fundulus rathbuni` &lt;dbl&gt;, `Ambloplites rupestris` &lt;dbl&gt;,
+## #   `Campostoma anomalum` &lt;dbl&gt;, `Catostomus commersonii` &lt;dbl&gt;, …</code></pre>
+<p>Lastly, let’s focus on a single species for this exercise.
+We’ll extract the presence/absence information for <strong>Redbreast Sunfish (Lepomis auritus)</strong> along with the corresponding <code>site_id</code> and longitude (<code>lon</code>) / latitude (<code>lat</code>).
+This subset will serve as the response variable in our upcoming analysis, allowing us to examine how environmental conditions shape the distribution of this focal species across the survey sites.</p>
+<div class="sourceCode" id="cb133"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## assign df_rbs</span></span>
+<span><span class="op">(</span><span class="va">df_rbs</span> <span class="op">&lt;-</span> <span class="va">df_finsync</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>presence <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="co"># all recorded species are "presence" = 1</span></span>
+<span>  <span class="fu">pivot_wider</span><span class="op">(</span>id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">site_id</span>, <span class="va">lon</span>, <span class="va">lat</span><span class="op">)</span>,</span>
+<span>              names_from <span class="op">=</span> <span class="va">latin</span>,</span>
+<span>              values_from <span class="op">=</span> <span class="va">presence</span>,</span>
+<span>              values_fill <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">site_id</span>,</span>
+<span>         <span class="va">lon</span>,</span>
+<span>         <span class="va">lat</span>,</span>
+<span>         <span class="st">"Lepomis auritus"</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">rename</span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Lepomis auritus"</span><span class="op">)</span><span class="op">)</span> <span class="co"># rename column "Lepomis auritus" to y</span></span></code></pre></div>
+<pre><code>## # A tibble: 122 × 4
+##    site_id                lon   lat     y
+##    &lt;chr&gt;                &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+##  1 finsync_nrs_nc-10013 -81.5  36.1     1
+##  2 finsync_nrs_nc-10014 -80.4  35.9     0
+##  3 finsync_nrs_nc-10020 -81.7  35.6     0
+##  4 finsync_nrs_nc-10023 -82.8  35.7     1
+##  5 finsync_nrs_nc-10024 -77.8  35.4     0
+##  6 finsync_nrs_nc-10027 -83.7  35.0     0
+##  7 finsync_nrs_nc-10029 -80.7  35.2     0
+##  8 finsync_nrs_nc-10034 -82.0  36.1     0
+##  9 finsync_nrs_nc-10041 -80.5  35.0     1
+## 10 finsync_nrs_nc-10049 -78.0  34.6     0
+## # ℹ 112 more rows</code></pre>
+</div>
+<div id="linking-to-the-environment" class="section level3" number="6.2.2">
+<h3>
+<span class="header-section-number">6.2.2</span> Linking to the environment<a class="anchor" aria-label="anchor" href="#linking-to-the-environment"><i class="fas fa-link"></i></a>
+</h3>
+<p>To see the influence of air temperature on fish distribution (assuming that it influences fish via changes in water temperature), we need to tie the occurrence dataframe <code>df_rbs</code> to air temperature at each survey site.
+To perform this, we’ll use the <strong>point-wise extraction method</strong> introduced in Chapter <a href="vector-raster-interactions.html#vector-raster-interactions">5</a>.</p>
+<p>This method requires an <code>sf</code> object containing the spatial coordinates of each survey site, because spatial extraction (e.g., using <code><a href="https://rspatial.github.io/terra/reference/extract.html">terra::extract()</a></code>) operates on geometries.
+So first, we’ll create an <code>sf</code> object listing <strong>unique site coordinates</strong> along with <code>site_id</code>.
+Here’s a code example that outlines this step:</p>
+<div class="sourceCode" id="cb135"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sf_rbs</span> <span class="op">&lt;-</span> <span class="va">df_rbs</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">st_as_sf</span><span class="op">(</span>coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"lon"</span>, <span class="st">"lat"</span><span class="op">)</span>,</span>
+<span>           crs <span class="op">=</span> <span class="fl">4326</span><span class="op">)</span></span></code></pre></div>
+<p>Point-wise extraction can be done with the procedure outlined in Section <a href="vector-raster-interactions.html#point-wise-extraction">5.3</a> in Chapter <a href="vector-raster-interactions.html#vector-raster-interactions">5</a>.
+This allows us to extract raster values—such as air temperature—at the locations of our survey sites.</p>
+<p>To begin, we’ll read the raster layer that contains air temperature data, then use the <code><a href="https://rspatial.github.io/terra/reference/extract.html">terra::extract()</a></code> function to obtain values at each survey site using the <code>sf</code> object we created earlier.</p>
+<div class="sourceCode" id="cb136"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## read temperature raster</span></span>
+<span><span class="va">spr_tmp_nc</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="st">"data/spr_tmp_nc.tif"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## extract values at the survey sites</span></span>
+<span><span class="op">(</span><span class="va">sf_rbs_tmp</span> <span class="op">&lt;-</span> <span class="fu">extract</span><span class="op">(</span>x <span class="op">=</span> <span class="va">spr_tmp_nc</span>,</span>
+<span>                       y <span class="op">=</span> <span class="va">sf_rbs</span>,</span>
+<span>                       bind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>   <span class="fu">st_as_sf</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## Simple feature collection with 122 features and 3 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -84.02452 ymin: 34.53497 xmax: -76.74611 ymax: 36.54083
+## Geodetic CRS:  WGS 84
+## First 10 features:
+##                 site_id y temperature                   geometry
+## 1  finsync_nrs_nc-10013 1       13.65 POINT (-81.51025 36.11188)
+## 2  finsync_nrs_nc-10014 0       15.15 POINT (-80.35989 35.87616)
+## 3  finsync_nrs_nc-10020 0       14.25 POINT (-81.74472 35.64379)
+## 4  finsync_nrs_nc-10023 1       12.65  POINT (-82.77898 35.6822)
+## 5  finsync_nrs_nc-10024 0       16.45 POINT (-77.75384 35.38553)
+## 6  finsync_nrs_nc-10027 0       13.45 POINT (-83.69678 35.02467)
+## 7  finsync_nrs_nc-10029 0       15.85 POINT (-80.65668 35.16119)
+## 8  finsync_nrs_nc-10034 0        9.35 POINT (-82.04497 36.09917)
+## 9  finsync_nrs_nc-10041 1       16.15 POINT (-80.46558 35.04365)
+## 10 finsync_nrs_nc-10049 0       16.85 POINT (-77.96322 34.58249)</code></pre>
+<p>For analysis, it’s convenient to have the data in <strong>tibble format</strong>, especially since the geometry column from the <code>sf</code> object is not needed for statistical modeling.
+We can easily convert the spatial object to a regular tibble using <code><a href="https://tibble.tidyverse.org/reference/as_tibble.html">tidyr::as_tibble()</a></code>, which drops the geospatial infromation by default (e.g., CRS).</p>
+<div class="sourceCode" id="cb138"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">df_rbs_tmp</span> <span class="op">&lt;-</span> <span class="fu">as_tibble</span><span class="op">(</span><span class="va">sf_rbs_tmp</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">geometry</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## # A tibble: 122 × 3
+##    site_id                  y temperature
+##    &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;
+##  1 finsync_nrs_nc-10013     1       13.6 
+##  2 finsync_nrs_nc-10014     0       15.1 
+##  3 finsync_nrs_nc-10020     0       14.2 
+##  4 finsync_nrs_nc-10023     1       12.6 
+##  5 finsync_nrs_nc-10024     0       16.5 
+##  6 finsync_nrs_nc-10027     0       13.4 
+##  7 finsync_nrs_nc-10029     0       15.9 
+##  8 finsync_nrs_nc-10034     0        9.35
+##  9 finsync_nrs_nc-10041     1       16.1 
+## 10 finsync_nrs_nc-10049     0       16.9 
+## # ℹ 112 more rows</code></pre>
+</div>
+<div id="visualization" class="section level3" number="6.2.3">
+<h3>
+<span class="header-section-number">6.2.3</span> Visualization<a class="anchor" aria-label="anchor" href="#visualization"><i class="fas fa-link"></i></a>
+</h3>
+<p>Visualization helps us understand how the focal species is distributed across space and whether its occurrence relates to environmental conditions like air temperature.
+To do this, we’ll map species distribution on top of the air temperature raster using the <code>ggplot()</code> framework.</p>
+<div class="sourceCode" id="cb140"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="co"># Add the air temperature raster layer as a background map</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spr_tmp_nc</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="co"># Overlay survey sites (sf object), colored by presence (1) or absence (0) of Redbreast Sunfish</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">sf_rbs</span>,</span>
+<span>          <span class="fu">aes</span><span class="op">(</span>color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="co"># Use a perceptually uniform color scale for the raster layer</span></span>
+<span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>   </span>
+<span>  <span class="co"># Apply a clean black-and-white theme for better contrast and readability</span></span>
+<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span>   </span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-98-1.png" width="672"></div>
+<p>In a different format, we can directly plot the relationship between species occurrence and air temperature using a scatter plot (or other types of plot).
+This type of visualization helps reveal how the probability of species presence varies across an environmental gradient—in this case, air temperature:</p>
+<div class="sourceCode" id="cb141"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df_rbs_tmp</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="co"># Start ggplot using temperature as x and species presence/absence as y</span></span>
+<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, </span>
+<span>             x <span class="op">=</span> <span class="va">temperature</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="co"># Add individual points for each survey site</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="co"># Apply a clean black-and-white theme for readability</span></span>
+<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-99-1.png" width="672"></div>
+<p>It seems like Redbreast Sunfish occurs more often at warmer sites, suggesting a potential positive relationship between air temperature (as a proxy for water temperature) and species presence.</p>
+</div>
+<div id="analysis" class="section level3" number="6.2.4">
+<h3>
+<span class="header-section-number">6.2.4</span> Analysis<a class="anchor" aria-label="anchor" href="#analysis"><i class="fas fa-link"></i></a>
+</h3>
+<p>Visual inspection suggests a potential positive relationship between species occurrence and air temperature.
+But how do we know whether this pattern is real—or just due to chance?
+This is where statistical analysis becomes essential: it allows us to assess whether the observed relationship is unlikely to have occurred by random chance.
+While this book does not provide a comprehensive introduction to statistical theory, we will use the <a href="https://aterui.github.io/biostats/generalized-linear-model.html">Generalized Linear Model (GLM)</a> framework to analyze our dataset.
+Specifically, we will fit a <strong>Binomial</strong> <strong>regression model</strong><a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;Technically, a Bernoulli regression in this case&lt;/p&gt;"><sup>4</sup></a> to evaluate the statistical influence of air temperature on the distribution of Redbreast Sunfish.</p>
+<div class="sourceCode" id="cb142"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html">glm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">temperature</span>,</span>
+<span>          data <span class="op">=</span> <span class="va">df_rbs_tmp</span>,</span>
+<span>          family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## 
+## Call:  glm(formula = y ~ temperature, family = "binomial", data = df_rbs_tmp)
+## 
+## Coefficients:
+## (Intercept)  temperature  
+##     -5.8651       0.4583  
+## 
+## Degrees of Freedom: 121 Total (i.e. Null);  120 Residual
+## Null Deviance:       142.4 
+## Residual Deviance: 130.6     AIC: 134.6</code></pre>
+<p>The code <code>glm(y ~ temperature, data = df_rbs_tmp, family = "binomial")</code> fits a GLM to the data to examine the relationship between air temperature and the occurrence of Redbreast Sunfish.
+In this model, <code>y</code> is a binary response variable indicating species presence (<code>1</code>) or absence (<code>0</code>), while <code>temperature</code> is the explanatory variable.
+The <code>data</code> argument specifies the dataset being used (<code>df_rbs_tmp</code>), and the model formula (<code>y ~ temperature</code>) defines how the response depends on the predictor.</p>
+<p>By setting <code>family = "binomial"</code>, the model assumes that the response variable follows a <strong>binomial distribution</strong>, which is appropriate for binary outcomes.
+This results in a <strong>logistic regression</strong>, where the model estimates the log-odds of species occurrence as a linear function of temperature.
+The coefficients obtained from this model help us determine whether temperature has a statistically significant influence on species presence, beyond what we might expect from random variation alone.</p>
+<p>The <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> function provides deeper insights:</p>
+<div class="sourceCode" id="cb144"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ temperature, family = "binomial", data = df_rbs_tmp)
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)   
+## (Intercept)  -5.8651     2.1241  -2.761  0.00576 **
+## temperature   0.4583     0.1417   3.234  0.00122 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 142.43  on 121  degrees of freedom
+## Residual deviance: 130.63  on 120  degrees of freedom
+## AIC: 134.63
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<p>This output summarizes the results of a <strong>logistic regression</strong> assessing the effect of air temperature on the occurrence of Redbreast Sunfish.</p>
+<p>The model includes an intercept and one predictor, <code>temperature</code>.
+The <strong>intercept estimate</strong> is <code>-5.8651</code>, representing the log-odds of occurrence when temperature is zero (which may be outside the actual data range, so it’s not always biologically interpretable).
+The <strong>coefficient for temperature</strong> is <code>0.4583</code>, meaning that for each 1-unit increase in air temperature, the log-odds of species presence increase by <code>0.4583</code>.
+This translates to a higher probability of observing the species at warmer sites.
+Both coefficients are statistically significant, with p-values well below 0.01 (<code>0.00576</code> for the intercept and <code>0.00122</code> for temperature), indicating that <strong>the effect of temperature is unlikely due to random chance</strong>.</p>
+<p>In this simplified case, we can easily visualize the model predictions using <code><a href="https://strengejacke.github.io/ggeffects/reference/ggpredict.html">ggeffects::ggpredict()</a></code>:</p>
+<div class="sourceCode" id="cb146"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df_pred</span> <span class="op">&lt;-</span> <span class="fu">ggpredict</span><span class="op">(</span><span class="va">m</span>,</span>
+<span>                     terms <span class="op">=</span> <span class="st">"temperature [all]"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span>data <span class="op">=</span> <span class="va">df_rbs_tmp</span>,</span>
+<span>             <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">temperature</span>,</span>
+<span>                 y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_line</span><span class="op">(</span>data <span class="op">=</span> <span class="va">df_pred</span>,</span>
+<span>            <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>,</span>
+<span>                y <span class="op">=</span> <span class="va">predicted</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_ribbon</span><span class="op">(</span>data <span class="op">=</span> <span class="va">df_pred</span>,</span>
+<span>              <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>,</span>
+<span>                  ymin <span class="op">=</span> <span class="va">conf.low</span>,</span>
+<span>                  ymax <span class="op">=</span> <span class="va">conf.high</span><span class="op">)</span>,</span>
+<span>              fill <span class="op">=</span> <span class="st">"grey"</span>,</span>
+<span>              alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Air temperature"</span>,</span>
+<span>       y <span class="op">=</span> <span class="st">"Probability of occurrence"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="_main_files/figure-html/unnamed-chunk-102-1.png" width="672"></div>
+<p>This code generates a plot showing the predicted relationship between air temperature and the probability of Redbreast Sunfish occurrence, based on a logistic regression model.
+The function <code>ggpredict()</code> is used with the argument <code>terms = "temperature [all]"</code>, which computes predictions for every observed value of temperature in the dataset, ensuring a smooth and data-aligned prediction curve.</p>
+<p>In the plot, each point represents an observation from the original dataset (<code>df_rbs_tmp</code>), showing where the species was present (<code>y = 1</code>) or absent (<code>y = 0</code>).
+The black line shows the model-predicted probability of occurrence across the temperature gradient, while the shaded ribbon represents the 95% confidence interval around the prediction.</p>
+<p>This result aligns well with ecological expectations—Redbreast Sunfish is a warm-water species known to prefer higher temperatures.
+The positive and statistically significant effect of air temperature on species occurrence supports this ecological knowledge.
+In other words, the statistical model confirms that Redbreast Sunfish are more likely to be found at warmer sites, validating the anticipated distributional response to air temperature.</p>
+
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="vector-raster-interactions.html"><span class="header-section-number">5</span> Vector-Raster Interactions</a></div>
+<div class="empty"></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#species-distribution-modeling"><span class="header-section-number">6</span> Species Distribution Modeling</a></li>
+<li><a class="nav-link" href="#learning-objectives-4"><span class="header-section-number">6.1</span> Learning Objectives</a></li>
+<li>
+<a class="nav-link" href="#linking-gis-to-ecology"><span class="header-section-number">6.2</span> Linking GIS to Ecology</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#preparing-ecological-data"><span class="header-section-number">6.2.1</span> Preparing ecological data</a></li>
+<li><a class="nav-link" href="#linking-to-the-environment"><span class="header-section-number">6.2.2</span> Linking to the environment</a></li>
+<li><a class="nav-link" href="#visualization"><span class="header-section-number">6.2.3</span> Visualization</a></li>
+<li><a class="nav-link" href="#analysis"><span class="header-section-number">6.2.4</span> Analysis</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>R-GIS for Ecology</strong>" was written by Akira Terui. It was last built on 2025-08-07.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

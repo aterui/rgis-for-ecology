@@ -22,7 +22,7 @@ pacman::p_load(tidyverse,
 
 ```
 
-## Getting Started
+## Getting started
 
 What are Coordinate Reference Systems (CRS)?
 CRS define how spatial data are projected onto the Earth's surface—essentially, how locations on the curved Earth are represented on a flat map.
@@ -181,12 +181,24 @@ st_distance(sf_ft_utm)
 
 These two sites are $\sim$ `r units::set_units(st_distance(sf_ft_utm)[1,2], "km") %>% round()` km away, shown in a matrix format.
 
-## Take Home
+## How to choose CRS?
 
-In a nutshell, **geodetic CRS** define how locations are mapped onto a 3D model of the Earth (typically an ellipsoid), preserving their original latitude and longitude values.
-**Projected CRS**, on the other hand, define how those geographic locations are transformed (or "projected") onto a flat, 2D surface.
-However, because no projection can preserve all spatial properties at once, **you must choose a projected CRS based on the geometric attributes most important to your analysis** — such as area, distance, or direction.
-Additionally, projected CRS are typically designed for **use within specific geographic regions**, and using one outside its intended area can introduce significant distortion.
+In a nutshell, geodetic CRS define how locations are mapped onto a 3D model of the Earth—typically an ellipsoid—preserving their original latitude and longitude values.
+These systems are ideal for storing and referencing geographic data globally but are not well suited for precise spatial measurements like area or distance due to the Earth's curvature.
+
+Projected CRS, on the other hand, transform geographic coordinates from the curved Earth onto a flat, 2D surface.
+Because no projection can preserve all spatial properties at once, the choice of a projected CRS should depend on the geometric attribute most important to your analysis—such as area, distance, or direction.
+Projected systems are also typically designed for use within specific regions, and applying them outside their intended coverage can introduce significant distortion.
+As a general guideline:
+
+-   **Use a UTM projection** when working within a narrow longitudinal zone (e.g., for local studies).
+-   **Use a State Plane CRS** for high-precision mapping within a single U.S. state.
+-   **Use a global equal-area projection** (e.g., Mollweide or Albers Equal-Area)[^p02_01-crs-2] for continental or global-scale analyses.
+
+[^p02_01-crs-2]: One should use other types of global projection according to their needs – for example, if distance is the attribute of interest, then use **equidistant CRS**
+
+Today, tools like generative AI can also serve as helpful guides in selecting an appropriate projected CRS by quickly narrowing down options based on your spatial extent, region, and analytical goals.
+Choosing the right projection helps ensure your spatial measurements and analyses are both accurate and interpretable.
 
 ## Exercise
 

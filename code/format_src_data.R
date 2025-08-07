@@ -365,3 +365,13 @@ list(spr_for,
 writeRaster(spr_reclass,
             "data/spr_land_reclass.tif",
             overwrite = TRUE)
+## human footprint
+spr_hfp <- rast("data/src/hfp2022.tif")
+
+spr_hfp_nc <- spr_hfp %>% 
+  crop(sf_nc_county %>% 
+         st_transform(crs = crs(spr_hfp)))
+
+writeRaster(spr_hfp_nc,
+            "data/spr_hfp2022.tif",
+            overwrite = TRUE)

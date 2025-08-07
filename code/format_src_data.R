@@ -149,7 +149,7 @@ v_site <- sf_finsync %>%
 
 df_finsync_nc <- df_finsync %>% 
   filter(site_id %in% v_site) %>% 
-  dplyr::select(-count, -source, -continent)
+  dplyr::select(-count, -source, -continent, -presence)
 
 sf_site_nc <- sf_finsync %>% 
   filter(site_id %in% v_site) %>% 

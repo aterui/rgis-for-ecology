@@ -51,3 +51,10 @@ point-wise-extraction
 zonal-statistics
 polygon-based-analysis
 buffer-based-analysis
+species-distribution-modeling
+learning-objectives-4
+linking-gis-to-ecology
+preparing-ecological-data
+linking-to-the-environment
+visualization
+analysis

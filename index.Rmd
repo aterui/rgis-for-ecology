@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = TRUE,
 
 ## Introduction {.unnumbered}
 
-Welcome to this site, which introduces R-based GIS applications for ecologists.
+Welcome to R-GIS for Ecology, which introduces R-based GIS applications for ecologists.
 
 Geographic Information Systems (GIS) have long been implemented using platforms like ArcGIS and QGIS.
 However, R now offers powerful and flexible tools that allow ecologists to integrate GIS workflows directly into their data analysis pipelines.
@@ -32,10 +32,12 @@ This book provides a practical introduction to core GIS techniques with an ecolo
 
 ## Data Sources {.unnumbered}
 
-The datasets used throughout this book are drawn from the following sources:
+The data and resources presented on this website are derived from and follow the licensing terms of their original sources:
 
--   [finSyncR](https://usepa.github.io/finsyncR/) — EPA's R package for accessing and processing freshwater biological monitoring data
+-   [finsyncR](https://usepa.github.io/finsyncR/): EPA's R package for accessing and processing freshwater biological monitoring data
 
--   [NC Department of Environmental Quality](https://www.deq.nc.gov/about/divisions/water-resources/water-sciences-section/biological-assessment-branch/fish-community-assessment-data) — Fish community assessment data from North Carolina
+-   [NC Department of Environmental Quality](https://www.deq.nc.gov/about/divisions/water-resources/water-sciences-section/biological-assessment-branch/fish-community-assessment-data): Fish community assessment data from North Carolina
 
--   [CHELSA](https://chelsa-climate.org/) — High-resolution climate data for ecological modeling
+-   [CHELSA](https://chelsa-climate.org/): High-resolution climate data for ecological modeling
+
+-   [Copernicus](https://land.copernicus.eu/en): Global land use data

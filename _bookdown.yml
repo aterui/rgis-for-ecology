@@ -7,5 +7,6 @@ rmd_files: ["index.Rmd",
             "chapter/p02_01-crs.Rmd",
             "chapter/p02_02-vector.Rmd",
             "chapter/p02_03-raster.Rmd",
-            "chapter/p02_04-vector-raster.Rmd"]
+            "chapter/p02_04-vector-raster.Rmd",
+            "chapter/p03_01-basic-analysis.Rmd"]
 output_dir: "docs"

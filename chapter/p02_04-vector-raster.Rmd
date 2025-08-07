@@ -111,9 +111,9 @@ This is because zonal statistics summarize values over areas, and accurate area-
 
 In this example, we first reproject the county polygon layer `sf_nc_county` into `WGS 84 / UTM zone 17N (EPSG:32617)`, a projected CRS appropriate for central and eastern North Carolina.
 Then, we use `terra::project()` to reproject the raster layer `spr_prec_nc` to match the polygon layer’s CRS.
-The `method = "bilinear"` option is used for resampling continuous raster data (such as precipitation)[^04-vector-raster-1], providing smoother interpolation.
+The `method = "bilinear"` option is used for resampling continuous raster data (such as precipitation)[^p02_04-vector-raster-1], providing smoother interpolation.
 
-[^04-vector-raster-1]: `method = "nearest"` should be used for categorical raster data.
+[^p02_04-vector-raster-1]: `method = "nearest"` should be used for categorical raster data.
     See `?terra::project()` .
 
 ```{r}
@@ -143,10 +143,10 @@ The `append_cols = TRUE` option ensures that all original attributes from the `s
 
 ```
 
-Although the output from `exact_extract()` is a regular data frame (not an `sf` object), we can easily merge the computed statistics back into the original spatial data using `left_join()`[^04-vector-raster-2].
+Although the output from `exact_extract()` is a regular data frame (not an `sf` object), we can easily merge the computed statistics back into the original spatial data using `left_join()`[^p02_04-vector-raster-2].
 This allows us to retain the spatial geometry of the county polygons while adding the precipitation values as new attributes.
 
-[^04-vector-raster-2]: The `left_join()` function performs a key-based merge, adding the precipitation values from `df_prec_county` to the corresponding polygons in `sf_nc_county`.
+[^p02_04-vector-raster-2]: The `left_join()` function performs a key-based merge, adding the precipitation values from `df_prec_county` to the corresponding polygons in `sf_nc_county`.
 
 In the example below, we assume that both the original `sf` object (`sf_nc_county`) and the extracted results (`df_prec_county`) share a common identifier column named `county`.
 
@@ -201,7 +201,7 @@ When linking environmental conditions to ecological data collected at survey sit
 However, environmental influences often operate at broader spatial scales.
 In such cases, buffer-based extraction may be more appropriate.
 
-Like other zonal statistics, buffer analysis assumes a planar coordinate system, so it is important to first transform the data to a projected CRS. 
+Like other zonal statistics, buffer analysis assumes a planar coordinate system, so it is important to first transform the data to a projected CRS.
 Once projected, you can generate buffers around the survey sites using the `sf::st_buffer()` function.
 
 ```{r}
@@ -214,7 +214,7 @@ sf_site_buff_proj <- sf_site_proj %>%
 
 ```
 
-The object `sf_site_buff_proj` is currently in a projected CRS (`WGS 84 / UTM zone 17N; EPSG:32617`), which is appropriate for spatial operations like buffering. 
+The object `sf_site_buff_proj` is currently in a projected CRS (`WGS 84 / UTM zone 17N; EPSG:32617`), which is appropriate for spatial operations like buffering.
 
 However, for visualization, a geodetic CRS such as WGS84 (`EPSG:4326`) is typically preferred.
 Transform the object back to a geodetic CRS to ensure correct alignment with standard basemaps and mapping applications.
@@ -276,5 +276,3 @@ ggplot() +
 ```
 
 Fantastic!
-
-

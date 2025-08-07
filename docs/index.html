@@ -57,6 +57,8 @@
 <li><a class="" href="vector-data-sf-basics.html"><span class="header-section-number">3</span> Vector Data (sf basics)</a></li>
 <li><a class="" href="raster-data-terra-basics.html"><span class="header-section-number">4</span> Raster Data (terra basics)</a></li>
 <li><a class="" href="vector-raster-interactions.html"><span class="header-section-number">5</span> Vector-Raster Interactions</a></li>
+<li class="book-part">Ecological Analysis</li>
+<li><a class="" href="species-distribution-modeling.html"><span class="header-section-number">6</span> Species Distribution Modeling</a></li>
 </ul>
 
         <div class="book-extra">
@@ -70,7 +72,7 @@
 <div id="introduction" class="section level2 unnumbered">
 <h2>Introduction<a class="anchor" aria-label="anchor" href="#introduction"><i class="fas fa-link"></i></a>
 </h2>
-<p>Welcome to this site, which introduces R-based GIS applications for ecologists.</p>
+<p>Welcome to R-GIS for Ecology, which introduces R-based GIS applications for ecologists.</p>
 <p>Geographic Information Systems (GIS) have long been implemented using platforms like ArcGIS and QGIS.
 However, R now offers powerful and flexible tools that allow ecologists to integrate GIS workflows directly into their data analysis pipelines.
 With R, users can handle spatial data, perform analyses, and create publication-quality maps, all within a reproducible coding environment.</p>
@@ -79,11 +81,12 @@ With R, users can handle spatial data, perform analyses, and create publication-
 <div id="data-sources" class="section level2 unnumbered">
 <h2>Data Sources<a class="anchor" aria-label="anchor" href="#data-sources"><i class="fas fa-link"></i></a>
 </h2>
-<p>The datasets used throughout this book are drawn from the following sources:</p>
+<p>The data and resources presented on this website are derived from and follow the licensing terms of their original sources:</p>
 <ul>
-<li><p><a href="https://usepa.github.io/finsyncR/">finSyncR</a> — EPA’s R package for accessing and processing freshwater biological monitoring data</p></li>
-<li><p><a href="https://www.deq.nc.gov/about/divisions/water-resources/water-sciences-section/biological-assessment-branch/fish-community-assessment-data">NC Department of Environmental Quality</a> — Fish community assessment data from North Carolina</p></li>
-<li><p><a href="https://chelsa-climate.org/">CHELSA</a> — High-resolution climate data for ecological modeling</p></li>
+<li><p><a href="https://usepa.github.io/finsyncR/">finsyncR</a>: EPA’s R package for accessing and processing freshwater biological monitoring data</p></li>
+<li><p><a href="https://www.deq.nc.gov/about/divisions/water-resources/water-sciences-section/biological-assessment-branch/fish-community-assessment-data">NC Department of Environmental Quality</a>: Fish community assessment data from North Carolina</p></li>
+<li><p><a href="https://chelsa-climate.org/">CHELSA</a>: High-resolution climate data for ecological modeling</p></li>
+<li><p><a href="https://land.copernicus.eu/en">Copernicus</a>: Global land use data</p></li>
 </ul>
 </div>
 </div>
@@ -115,7 +118,7 @@ With R, users can handle spatial data, perform analyses, and create publication-
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>R-GIS for Ecology</strong>" was written by Akira Terui. It was last built on 2025-08-04.</p>
+    <p>"<strong>R-GIS for Ecology</strong>" was written by Akira Terui. It was last built on 2025-08-07.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

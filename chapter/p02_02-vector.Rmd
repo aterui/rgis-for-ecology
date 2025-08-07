@@ -21,7 +21,7 @@ pacman::p_load(tidyverse,
                mapview)
 ```
 
-## Vector Data in GIS
+## Vector data in GIS
 
 In GIS, **vector data** is one of the primary ways to represent geographic features on a map.
 Vector data uses **geometric shapes** -- specifically **points, lines, and polygons** -- to model real-world objects.
@@ -273,7 +273,7 @@ ggplot() +
 
     -   Then, recreate the map showing only `sf_nc_as` and `sf_str_as`.
 
-## Vector Data Manipulation
+## Vector data manipulation
 
 ### Spatial join
 

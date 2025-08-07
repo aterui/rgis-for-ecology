@@ -21,7 +21,7 @@ pacman::p_load(tidyverse,
                exactextractr)
 ```
 
-## Interations between Vector and Raster Data
+## Interations between vector and raster data
 
 In ecological data analysis, it is common to relate ecological responses (e.g., species richness) to environmental variables.
 To do this effectively, we often need to extract values from raster layers at specific locations, such as survey sites (points) or areas (polygons).
@@ -43,7 +43,7 @@ spr_prec_nc <- rast("data/spr_prec_nc.tif")
 
 ```
 
-## Point-wise Extraction
+## Point-wise extraction
 
 Let's perform point-wise extraction of precipitation values at survey site locations.
 To explore the spatial patterns and get a sense of the data, we will first visualize the raster precipitation data using `tidyterra::geom_spatraster()` and overlay the survey sites using `ggplot2::geom_sf()`.
@@ -93,7 +93,7 @@ ggplot() +
   theme_bw()                        # Use a clean black-and-white theme
 ```
 
-## Zonal Statistics
+## Zonal statistics
 
 Zonal statistics in GIS refers to the process of summarizing raster values within the boundaries of defined zones, typically represented by polygons.
 For example, you might calculate the average precipitation within each watershed or administrative boundary.

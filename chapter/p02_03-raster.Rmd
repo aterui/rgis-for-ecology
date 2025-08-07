@@ -19,7 +19,7 @@ pacman::p_load(tidyverse,
                tidyterra)
 ```
 
-## Raster Data in GIS
+## Raster data in GIS
 
 **Raster data** in GIS represents geographic information as a grid of pixels (or cells), where each cell has a value corresponding to a specific attribute such as elevation, temperature, or land cover type.
 Unlike vector data (points, lines, and polygons), raster data is particularly well-suited for continuous phenomena that vary smoothly across space.
@@ -77,6 +77,69 @@ ggplot() +
   geom_spatraster(data = spr_ex)
 ```
 
+### Raster data type
+
+Raster data represent spatial information as a grid of cells (pixels), where each cell holds a value.
+These values can represent many types of data, but they generally fall into two broad categories: **continuous** and **discrete**.
+
+#### Continuous {.unnumbered}
+
+**Continuous raster data** represent variables that change smoothly across space and can take on a wide range of numeric values.
+These are often environmental variables such as elevation, temperature, or precipitation.
+There are no clear boundaries between classes—values gradually shift from one to another across the landscape.
+For example, a elevation raster introduced above (`spr_ex`) shows a gradient from low to high-elevation areas.
+
+#### Discrete {.unnumbered}
+
+In contrast, **discrete raster data** (also called categorical raster data) represent classes or categories with distinct boundaries.
+Each cell stores an integer code that corresponds to a specific class, such as land cover type (e.g., forest, water, urban) or vegetation zone.
+These values do not vary continuously and do not imply gradual transitions between categories.
+In the `data` folder, we have land use raster files (`spr_forest_nc`, `spr_crop_nc`, `spr_urban_nc`) – let's take a quick look:
+
+```{r}
+## load forest raster
+(spr_for <- rast("data/spr_forest_nc.tif"))
+```
+
+Unique values in this raster are confined to `0` and `1`, each representing non-forest and forest cells:
+
+```{r}
+ggplot() +
+  geom_spatraster(data = spr_for)
+```
+
+The visualization highlights the discrete nature of the data, in contrast to the continuous elevation raster shown above.
+You can confirm this by using the `terra::unique()` function, which returns the unique cell values in the raster.
+In this case, the output confirms that the raster contains only `0` and `1`, reflecting its categorical structure.
+
+```{r}
+unique(spr_for)
+```
+
+Alternatively, a discrete raster may contain multiple codes, each representing a unique cell category (commonly used for land cover classification).
+The file `spr_land_reclass.tif` in the data folder follows this format.
+Each pixel in this raster corresponds to a specific land cover class, encoded by an integer value.
+
+```{r}
+(spr_land <- rast("data/spr_land_reclass.tif"))
+```
+
+Apply `terra::unique()` to examine code values:
+
+```{r}
+unique(spr_land)
+```
+
+In this raster, cell values are **encoded as categorical codes**, for example:
+
+-   `1001` = forest\
+-   `1010` = crop\
+-   `1100` = urban
+
+These codes represent different land cover types, but keep in mind that this is merely an example.
+Different raster datasets often use **different coding schemes**, depending on the source and purpose.
+Therefore, it is essential to consult the accompanying **code table** or metadata to accurately interpret the categories represented in the raster.
+
 ### Exercise
 
 1.  **Read a GeoTIFF file** (ref: Section \@ref(raster-data-format))
@@ -98,7 +161,7 @@ ggplot() +
 
     -   Use `ggplot2` with `tidyterra::geom_spatraster()` to create a basic map of the precipitation raster.
 
-## Raster Data Manipulation
+## Raster data manipulation
 
 ### Crop
 

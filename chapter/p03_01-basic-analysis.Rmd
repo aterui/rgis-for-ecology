@@ -2,13 +2,16 @@
 
 # Species Distribution Modeling
 
-## Learning Objectives
+## Learning objectives
 
 1.  Prepare ecological datasets for species-environment analyses
 
 2.  Integrate GIS-derived environmental variables with species occurrence data
 
 3.  Visualize and analyze relationships between environmental conditions and species distributions
+
+In this chapter, we will work with the following packages.
+Before starting any exercises, make sure to run the following code.
 
 ```{r}
 if (!require(pacman)) install.packages("pacman")
@@ -23,7 +26,7 @@ pacman::p_load(tidyverse,
 
 ```
 
-## Linking GIS to Ecology
+## Linking GIS to ecology
 
 So far, we have covered the fundamentals of GIS, but made only limited connections to ecological data.
 Now that we’ve developed core GIS skills, we are ready to link GIS-derived environmental variables to ecological patterns, such as species occurrence and distribution.

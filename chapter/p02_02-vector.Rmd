@@ -459,14 +459,24 @@ ggplot() +
 
 1.  **Spatial join of survey sites and counties** (ref: Section \@ref(spatial-join))
 
-    -   Load `sf_site_deq.rds` from the `data` folder using `readRDS()`.
+    -   Load `sf_quakes.rds` from the `data` folder using `readRDS()`.
         This file should have been created through the exercise in Chapter \@ref(coordinate-systems).
 
-    -   Assign the loaded object to `sf_site_deq`.
+    -   Assign the loaded object to `sf_quakes`.
 
-    -   Perform a spatial join between the survey site object `sf_site_deq` and the North Carolina county object `sf_nc_county`.
+    -   Read (a polygon for New Zealand) with `readRDS(data/sf_nz.rds)` and assign the resulting object to `sf_nz`.
 
-    -   Assign the resulting joined object to `sf_site_deq_join`.
+    -   Visualize the point and polygon layers with `mapview(sf_nz) + mapview(sf_quakes)`.
+
+    -   Perform a spatial join between the quake object `sf_quakes` and the New Zealand polgyon object `sf_nz`.
+
+    -   Assign the resulting joined object to `sf_quakes_join`.
+
+    -   In `sf_quakes_join`, earthquake events that occurred outside New Zealand should have `NA` in the `fid` column.
+        Use `drop_na(sf_quakes, fid)` to remove quakes that occurred outside New Zealand, and assign the resulting object to `sf_quakes_nz`.
+
+    -   Count the number of earthquake events in New Zealand by counting the number of rows in `sf_quakes_nz`.
+        Use `nrow()` function to count.
 
 2.  **Count survey sites per county** (ref: [group operation](https://aterui.github.io/biostats/data-manipulation.html#group-operation))
 
@@ -485,7 +495,8 @@ ggplot() +
 4.  **Visualize the distribution on a stacked map** (ref: Section \@ref(mapping-vector-data))
 
     -   Create a layered (stacked) map showing both `sf_n_site` and `sf_n10`.
+        Use `geom_sf()` function.
 
     -   Plot `sf_n_site` polygons in **grey** to show all counties with at least one site.
 
-    -   Overlay `sf_n3` polygons in **salmon** to highlight counties with more than three sites.
+    -   Overlay `sf_n10` polygons in **salmon** to highlight counties with more than three sites.

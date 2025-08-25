@@ -36,8 +36,6 @@ The data and resources presented on this website are derived from and follow the
 
 -   [finsyncR](https://usepa.github.io/finsyncR/): EPA's R package for accessing and processing freshwater biological monitoring data
 
--   [NC Department of Environmental Quality](https://www.deq.nc.gov/about/divisions/water-resources/water-sciences-section/biological-assessment-branch/fish-community-assessment-data): Fish community assessment data from North Carolina
-
 -   [CHELSA](https://chelsa-climate.org/): High-resolution climate data for ecological modeling
 
 -   [Copernicus](https://land.copernicus.eu/en): Global land use data

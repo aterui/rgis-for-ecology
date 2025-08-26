@@ -3,4 +3,4 @@
 .RData
 .Ruserdata
 data/src*
-data/*.tif
+data/spr_*.tif

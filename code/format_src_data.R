@@ -204,6 +204,11 @@ st_write(sf_nc_county,
 
 saveRDS(sf_nc_county, "data/sf_nc_county.rds")
 
+sf_nz <- rnaturalearth::ne_countries(country = "New Zealand",
+                                     scale = "medium",
+                                     returnclass = "sf")
+
+saveRDS(sf_nz, "data/sf_nz.rds")
 
 # terra example -----------------------------------------------------------
 

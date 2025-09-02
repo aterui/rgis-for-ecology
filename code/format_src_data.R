@@ -206,7 +206,9 @@ saveRDS(sf_nc_county, "data/sf_nc_county.rds")
 
 sf_nz <- rnaturalearth::ne_countries(country = "New Zealand",
                                      scale = "medium",
-                                     returnclass = "sf")
+                                     returnclass = "sf") %>% 
+  select(NULL) %>% 
+  mutate(fid = 1)
 
 saveRDS(sf_nz, "data/sf_nz.rds")
 

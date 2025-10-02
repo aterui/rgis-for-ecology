@@ -257,15 +257,11 @@ ggplot() +
 
     -   Determine whether they share the same CRS.
 
-3.  **Export to GeoPackage format** (ref: Section \@ref(readexport-vector-data))
-
-    -   Save `sf_str_as` as a GeoPackage file named `sf_stream_as.gpkg` in the `data` folder. Use `sf::st_write()`.
-
-4.  **Map streams and county boundaries** (ref: Section \@ref(mapping-vector-data))
+3.  **Map streams and county boundaries** (ref: Section \@ref(mapping-vector-data))
 
     -   Create a map displaying both: North Carolina county boundaries from `sf_nc_county`, and Ashe County stream lines from `sf_str_as`. Use `ggplot2::ggplot()` with multiple `geom_sf()` layers.
 
-5.  **Subset county layer to Ashe county and remap** (ref: Section \@ref(polygon) and Section \@ref(mapping-vector-data))
+4.  **Subset county layer to Ashe county and remap** (ref: Section \@ref(polygon) and Section \@ref(mapping-vector-data))
 
     -   Subset the `sf_nc_county` object to include only Ashe County.
         Use `dplyr::filter()` for subsetting.
@@ -473,7 +469,7 @@ ggplot() +
     -   Assign the resulting joined object to `sf_quakes_join`.
 
     -   In `sf_quakes_join`, earthquake events that occurred outside New Zealand should have `NA` in the `fid` column.
-        Use `drop_na(sf_quakes, fid)` to remove quakes that occurred outside New Zealand, and assign the resulting object to `sf_quakes_nz`.
+        Use `drop_na(sf_quakes_join, fid)` to remove quakes that occurred outside New Zealand, and assign the resulting object to `sf_quakes_nz`.
 
     -   Count the number of earthquake events in New Zealand by counting the number of rows in `sf_quakes_nz`.
         Use `nrow()` function to count.
@@ -481,12 +477,16 @@ ggplot() +
 2.  **Count survey sites per county** (ref: [group operation](https://aterui.github.io/biostats/data-manipulation.html#group-operation))
 
     -   Using `sf_site_join`, calculate the number of survey sites in each county.
-        Use `dplyr::group_by()` to group by `county`.
+        Use `as_tibble()` to make it a regular tibble, then use `dplyr::group_by()` to group by `county`.
 
     -   Then use `dplyr::summarize()` to create a new column `n` containing the count of survey sites.
-        Assign the resulting object to `sf_n_site`.
+    
+    - Assign the resulting object to `df_n`.
+        
 
 3.  **Subset counties with more than ten sites** (ref: Section \@ref(vector-data-manipulation))
+    
+    -   Join `df_n` to `sf_nc_county` by using `left_join()`. Assign the resulting object to `sf_n_site`.
 
     -   From `sf_n_site`, retain only counties with more than 10 survey sites using `dplyr::filter()`.
 

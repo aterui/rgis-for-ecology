@@ -135,7 +135,7 @@ Each cell stores an integer code that corresponds to a specific class, such as l
 These values do not vary continuously and do not imply gradual transitions between categories.
 Discrete rasters can be further categorized into **binary** and **code values with multiple categories**.
 
-Types of discrete data - binary
+**Types of discrete data - binary**
 
 In the `data` folder, we have land use raster files (`spr_forest_nc`, `spr_crop_nc`, `spr_urban_nc`) – let's take a quick look:
 
@@ -169,7 +169,7 @@ v_binary <- values(spr_for)
 
 About 70% of the NC land is forest.
 
-Types of discrete data - code values with multiple categories
+**Types of discrete data - code values with multiple categories**
 
 Alternatively, a discrete raster may contain multiple codes, each representing a unique cell category (commonly used for land cover classification).
 The file `spr_land_reclass.tif` in the data folder follows this format.

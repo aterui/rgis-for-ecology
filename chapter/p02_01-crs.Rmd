@@ -211,7 +211,7 @@ Choosing the right projection helps ensure your spatial measurements and analyse
     -   Visualize `sf_quakes` with `mapview::mapview()` function.
 3.  **Calculate the distance between two points** (ref: Section \@ref(crs-transformation))
     -   Select the first two sites in `sf_quakes` and assign it to `sf_ft_quakes`.
-    -   Transform the CRS of `sf_ft_quakes` to WGS 84 / UTM 17N using `sf::st_transfrom()`. Assign the resulting object to `sf_ft_quakes_proj`.
+    -   Transform the CRS of `sf_ft_quakes` to WGS 84 / UTM 60S using `sf::st_transfrom()`. Assign the resulting object to `sf_ft_quakes_proj`.
     -   Calculate the geographic distance between the two sites.
 4.  **Export the spatial object**
     -   Save the `sf_quakes` object as an RDS file named `sf_quakes.rds` in the `data` folder. Use `saveRDS(sf_quakes, file = "data/sf_quakes.rds")`.

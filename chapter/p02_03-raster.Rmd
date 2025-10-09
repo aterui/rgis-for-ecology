@@ -16,7 +16,9 @@ if (!require(pacman)) install.packages("pacman")
 
 pacman::p_load(tidyverse,
                terra,
-               tidyterra)
+               tidyterra,
+               mapview,
+               stars)
 ```
 
 ## Raster data in GIS
@@ -77,6 +79,15 @@ ggplot() +
   geom_spatraster(data = spr_ex)
 ```
 
+We used `mapview::mapview()` function to draw an interactive map for `sf` objects, but this function does not support `SpatRaster`.
+Instead, we need to convert it to `stars` object using `stars::st_as_stars()` (see more instruction on `stars` package [here](https://tmieno2.github.io/R-as-GIS-for-Economists/stars-basics.html); this book does not cover this package).
+Convert the object class from `SpatRaster` to `stars` if you wish to use `mapview()` function.
+
+```{r}
+star_ex <- st_as_stars(spr_ex)
+mapview(star_ex)
+```
+
 ### Raster data type
 
 Raster data represent spatial information as a grid of cells (pixels), where each cell holds a value.
@@ -89,11 +100,43 @@ These are often environmental variables such as elevation, temperature, or preci
 There are no clear boundaries between classes—values gradually shift from one to another across the landscape.
 For example, a elevation raster introduced above (`spr_ex`) shows a gradient from low to high-elevation areas.
 
+We can take a look at values of the raster layer using `terra::values()` function.
+Let's apply this function to `spr_ex` and get the first several elements (using `head()`) for example:
+
+```{r}
+v_elev <- values(spr_ex)
+head(v_elev)
+```
+
+`terra::extract()` function allows you to obtain values from specific locations.
+For example, if you wanted to get a value at longitude = 6.0000, and latitude = 50.0000, you may use the following syntax:
+
+```{r}
+extract(spr_ex, y = cbind(6.0000, 50.0000))
+```
+
+Note that argument `y` must be supplied as a matrix or a dataframe.
+If you wish to extract at multiple locations, you may supply a dataframe for the second argument.
+
+```{r}
+(df_point <- tibble(lon = c(6, 5.9), lat = c(50, 49.96)))
+```
+
+You will get two values of elevation at these two locations as a dataframe.
+
+```{r}
+extract(spr_ex, y = df_point)
+```
+
 #### Discrete {.unnumbered}
 
 In contrast, **discrete raster data** (also called categorical raster data) represent classes or categories with distinct boundaries.
 Each cell stores an integer code that corresponds to a specific class, such as land cover type (e.g., forest, water, urban) or vegetation zone.
 These values do not vary continuously and do not imply gradual transitions between categories.
+Discrete rasters can be further categorized into **binary** and **code values with multiple categories**.
+
+Types of discrete data - binary
+
 In the `data` folder, we have land use raster files (`spr_forest_nc`, `spr_crop_nc`, `spr_urban_nc`) – let's take a quick look:
 
 ```{r}
@@ -115,6 +158,18 @@ In this case, the output confirms that the raster contains only `0` and `1`, ref
 ```{r}
 unique(spr_for)
 ```
+
+A benefit of binary representation is that it can be easily converted into summary information.
+For example, if you are interested in the proportion of forest in the defined area (in this case, North Carolina), you can use the `mean()` function to get the number.
+
+```{r}
+v_binary <- values(spr_for)
+(p_forest <- mean(v_binary))
+```
+
+About 70% of the NC land is forest.
+
+Types of discrete data - code values with multiple categories
 
 Alternatively, a discrete raster may contain multiple codes, each representing a unique cell category (commonly used for land cover classification).
 The file `spr_land_reclass.tif` in the data folder follows this format.
@@ -140,6 +195,45 @@ These codes represent different land cover types, but keep in mind that this is 
 Different raster datasets often use **different coding schemes**, depending on the source and purpose.
 Therefore, it is essential to consult the accompanying **code table** or metadata to accurately interpret the categories represented in the raster.
 
+`terra::extract()` works just like in a continuous raster layer.
+Since this is NC data, let's take the landuse type of the UNCG Sullivan Building (longitude = -79.8063, latitude = 36.0701)
+
+```{r}
+extract(spr_land, cbind(-79.8063, 36.0701))
+```
+
+As expected, this cell value contains "urban" category.
+
+**Reclass**
+
+Often, discrete data are provided as categorical codes, but you may want to convert these codes into a 0/1 binary representation to compute summary statistics.
+The `terra::classify()` function can be used for this purpose.
+The first argument specifies the raster layer to be converted, and the second argument (`rcl`) defines the rules for converting the original codes into binary values.
+For example, if you wish to convert `spr_land` cell values to 0/1 binary of forest (0 = non-forest, 1 = forest), you will first write the conversion matrix:
+
+```{r}
+# write a conversion matrix
+# left, original value
+# right, value after conversion
+(cm <- cbind(c(0, 1001, 1010, 1100),
+             c(0, 1, 0, 0)))
+```
+
+In this `cm` matrix, the code `1001` will be converted to `1`, while all other values will be converted to `0`.
+Plug this matrix into `terra::classify()` function:
+
+```{r}
+spr_bin <- classify(spr_land,
+                    rcl = cm)
+```
+
+Taking the mean of values from this raster yields the same value from the mean of `spr_for`:
+
+```{r}
+v_bin <- values(spr_bin)
+mean(v_bin)
+```
+
 ### Exercise
 
 1.  **Read a GeoTIFF file** (ref: Section \@ref(raster-data-format))
@@ -160,6 +254,25 @@ Therefore, it is essential to consult the accompanying **code table** or metadat
 3.  **Visualize the raster** (ref: Section \@ref(mapping-raster-data))
 
     -   Use `ggplot2` with `tidyterra::geom_spatraster()` to create a basic map of the precipitation raster.
+
+4.  **Extract values** (ref: Section \@ref(raster-data-type))
+
+    -   Read the fish sampling site data from `data/sf_finsync_nc.rds` and assign it to `sf_site`.
+
+    -   `st_coordinates(sf_site)` will extract coordinates from the `sf` object as a dataframe.
+        Assign this data frame to `df_xy`.
+
+    -   Using `terra::extract()` function with inputs `spr_land` and `df_xy`, identify land use type at each sampling site.
+        Assign the result to `df_land`.
+
+    -   Identify the most common land use type at these sampling sites.
+
+5.  **Reclassify** (ref: Section \@ref(raster-data-type))
+
+    1.  Reclassify the values of `spr_land` to have binary entries **urban = 1** and **non-urban = 0**.
+        After reclassification, assign the layer to `spr_urban`.
+
+    2.  Calculate the proportion of urban land use in NC.
 
 ## Raster data manipulation
 

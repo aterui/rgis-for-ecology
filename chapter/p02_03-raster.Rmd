@@ -426,6 +426,14 @@ ggplot() +
           alpha = 0.25)
 ```
 
+Export the merged file:
+
+```{r, eval=FALSE}
+writeRaster(spr_merge, 
+            filename = "data/spr_prec_nc.tif",
+            overwrite = TRUE)
+```
+
 ### Stack
 
 If we have multiple raster layers with the same extent and resolution, we can "stack" them into a single object for joint analysis.
@@ -538,31 +546,10 @@ As a result, reprojecting a raster to a new CRS and then back to the original CR
 
 ### Exercise
 
-1.  **Crop raster to a defined extent** (ref: Section \@ref(crop))
+1.  **Merge raster files** (ref: Section \@ref(merge))
 
-    -   Load the CHELSA temperature raster `spr_tmp_us.tif` from the `data` folder.
-
-    -   Assign it to an object named `spr_tmp`.
-
-    -   Inspect its spatial extent using `terra::ext()`.
-
-    -   Crop the raster to the extent of North Carolina using `sf_nc_county` (use `terra::crop()`)
-
-    -   Assign the cropped raster to `spr_tmp_nc`.
-
-2.  **Overlay cropped raster with vector boundaries** (ref: Section \@ref(crop))
-
-    -   Load the North Carolina county boundaries (`sf_nc_county.rds`) and overlay them on the cropped raster on a map:
-
-        -   Raster: `spr_tmp_nc`
-
-        -   Vector: `sf_nc_county`
-
-        -   Use `ggplot2::ggplot()` with `geom_spatraster()` and `geom_sf()` (*Tip: Use `alpha = 0.25` in `geom_sf()` to make the polygons transparent.)*
-
-3.  **Merge raster files** (ref: Section \@ref(merge))
-
-    -   Load four regional temperature tiles: `spr_tmp_ncnw.tif` (Northwest), `spr_tmp_ncne.tif` (Northeast), `spr_tmp_ncsw.tif` (Southwest), `spr_tmp_ncse.tif` (Southeast)
+    -   Load four regional temperature tiles: `spr_tmp_ncnw.tif` (Northwest), `spr_tmp_ncne.tif` (Northeast), `spr_tmp_ncsw.tif` (Southwest), `spr_tmp_ncse.tif` (Southeast).
+        Assign them to separate objects (object names of your choice).
 
     -   Merge **all four** using:
 
@@ -572,14 +559,28 @@ As a result, reprojecting a raster to a new CRS and then back to the original CR
 
         -   `merge()` to combine all tiles into `spr_merge`.
 
-        -   Plot `spr_merge` over `sf_nc_county` to confirm coverage (use `ggplot()` format).
+        -   Plot `spr_merge` over `sf_nc_county` to confirm coverage.
+            Use `ggplot2::ggplot()` with `geom_spatraster()` and `geom_sf()` (*Tip: Use `alpha = 0.25` in `geom_sf()` to make the polygons transparent.)*
 
-4.  **Reproject raster and explore resampling** (ref: Section \@ref(reprojection))
+2.  **Crop raster to a defined extent** (ref: Section \@ref(crop))
 
-    -   Reproject `spr_tmp_nc` to a projected CRS: UTM Zone 17N (EPSG:32617).
-        Use `terra::project()` with `y = "EPSG:32617"`.
+    -   Select county `camden` from `sf_nc_county` (from `data/sf_nc_county.rds`) and assign it to `sf_camden`.
+
+    -   Inspect its spatial extent (`sf_camden`) using `terra::ext()`.
+
+    -   Crop `spr_merge` to the extent of the camden county using `sf_camden` (use `terra::crop()`)
+
+    -   Assign the cropped raster to `spr_tmp_camden`.
+
+    -   Plot `spr_tmp_camden` over `sf_camden` to confirm coverage.
+        Use `ggplot2::ggplot()` with `geom_spatraster()` and `geom_sf()` (*Tip: Use `alpha = 0.25` in `geom_sf()` to make the polygons transparent.)*
+
+3.  **Reproject raster and explore resampling** (ref: Section \@ref(reprojection))
+
+    -   Reproject `spr_tmp_camden` to a projected CRS: UTM Zone 18N (EPSG:32618).
+        Use `terra::project()` with `y = "EPSG:32618"`.
         Given the data type of the temperature layer, choose an appropriate method of resampling (either `method = "near"` or `method = "bilinear"`).
 
-    -   Assign to `spr_tmp_nc_proj`.
+    -   Assign to `spr_tmp_camden_proj`.
 
     -   Inspect the new CRS and resolution by printing the projected object.

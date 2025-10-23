@@ -572,7 +572,7 @@ As a result, reprojecting a raster to a new CRS and then back to the original CR
 
     -   Assign the cropped raster to `spr_tmp_camden`.
 
-    -   Plot `spr_tmp_camden` over `sf_camden` to confirm coverage.
+    -   Plot `spr_tmp_camden` over `sf_nc_county` to confirm coverage.
         Use `ggplot2::ggplot()` with `geom_spatraster()` and `geom_sf()` (*Tip: Use `alpha = 0.25` in `geom_sf()` to make the polygons transparent.)*
 
 3.  **Reproject raster and explore resampling** (ref: Section \@ref(reprojection))

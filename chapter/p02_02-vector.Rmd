@@ -480,13 +480,13 @@ ggplot() +
         Use `as_tibble()` to make it a regular tibble, then use `dplyr::group_by()` to group by `county`.
 
     -   Then use `dplyr::summarize()` to create a new column `n` containing the count of survey sites.
-    
-    - Assign the resulting object to `df_n`.
-        
+
+    -   Assign the resulting object to `df_n`.
 
 3.  **Subset counties with more than ten sites** (ref: Section \@ref(vector-data-manipulation))
-    
-    -   Join `df_n` to `sf_nc_county` by using `left_join()`. Assign the resulting object to `sf_n_site`.
+
+    -   Join `df_n` to `sf_nc_county` by using `left_join()`.
+        Assign the resulting object to `sf_n_site`.
 
     -   From `sf_n_site`, retain only counties with more than 10 survey sites using `dplyr::filter()`.
 
@@ -494,7 +494,7 @@ ggplot() +
 
 4.  **Visualize the distribution on a stacked map** (ref: Section \@ref(mapping-vector-data))
 
-    -   Create a layered (stacked) map showing both `sf_n_site` and `sf_n10`.
+    -   Create a layered (stacked) map showing `sf_nc_coundy`, `sf_n_site` and `sf_n10`.
         Use `geom_sf()` function.
 
     -   Plot `sf_n_site` polygons in **grey** to show all counties with at least one site.
